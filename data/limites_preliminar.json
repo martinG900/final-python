@@ -1,0 +1,218 @@
+{
+    "Argentina": [
+        "Perú",
+        "Chile",
+        "Uruguay"
+    ],
+    "Taymir": [
+        "Aral",
+        "Mongolia",
+        "Siberia",
+        "Tartaria",
+        "Kamtchatka"
+    ],
+    "España": [
+        "Francia"
+    ],
+    "Groenlandia": [],
+    "India": [
+        "Malasia",
+        "China",
+        "Borneo"
+    ],
+    "Rusia": [
+        "Alemania",
+        "Polonia",
+        "Aral"
+    ],
+    "Yukon": [
+        "Alaska",
+        "Oregón"
+    ],
+    "Egipto": [
+        "Etiopía",
+        "Israel"
+    ],
+    "Kamtchatka": [
+        "Japón",
+        "Taymir"
+    ],
+    "Etiopía": [
+        "Egipto",
+        "Zaire",
+        "Sudáfrica"
+    ],
+    "Irán": [
+        "Turquía",
+        "Gobi",
+        "Mongolia"
+    ],
+    "Uruguay": [
+        "Perú",
+        "Brasil",
+        "Argentina",
+        "Chile"
+    ],
+    "Italia": [
+        "Francia",
+        "Alemania"
+    ],
+    "Chile": [
+        "Perú",
+        "Argentina",
+        "Uruguay"
+    ],
+    "Gobi": [
+        "Irán",
+        "Mongolia",
+        "China"
+    ],
+    "Francia": [
+        "Gran Bretaña",
+        "España",
+        "Alemania",
+        "Italia"
+    ],
+    "Sumatra": [
+        "Arabia",
+        "Borneo"
+    ],
+    "Colombia": [
+        "Perú",
+        "Brasil"
+    ],
+    "Madagascar": [],
+    "Borneo": [
+        "India",
+        "Malasia",
+        "Java",
+        "Sumatra"
+    ],
+    "Israel": [
+        "Egipto",
+        "Turquía",
+        "Arabia"
+    ],
+    "Perú": [
+        "Colombia",
+        "Brasil",
+        "Argentina",
+        "Chile",
+        "Uruguay"
+    ],
+    "Zaire": [
+        "Sahara",
+        "Etiopía",
+        "Sudáfrica"
+    ],
+    "Islandia": [],
+    "Alaska": [
+        "Yukon",
+        "Oregón"
+    ],
+    "Brasil": [
+        "Colombia",
+        "Perú",
+        "Uruguay"
+    ],
+    "Siberia": [
+        "Aral",
+        "Mongolia",
+        "Tartaria",
+        "Taymir"
+    ],
+    "Alemania": [
+        "Francia",
+        "Italia",
+        "Polonia",
+        "Rusia"
+    ],
+    "Turquía": [
+        "Polonia",
+        "Arabia",
+        "Israel",
+        "Irán"
+    ],
+    "Gran Bretaña": [
+        "Francia"
+    ],
+    "Mongolia": [
+        "Irán",
+        "Gobi",
+        "Siberia",
+        "Taymir"
+    ],
+    "China": [
+        "India",
+        "Malasia",
+        "Gobi"
+    ],
+    "Suecia": [],
+    "Nueva York": [
+        "California",
+        "Terranova"
+    ],
+    "Arabia": [
+        "Turquía",
+        "Israel",
+        "Sumatra"
+    ],
+    "México": [
+        "California"
+    ],
+    "California": [
+        "Oregón",
+        "México",
+        "Nueva York"
+    ],
+    "Aral": [
+        "Rusia",
+        "Siberia",
+        "Tartaria",
+        "Taymir"
+    ],
+    "Canadá": [],
+    "Japón": [
+        "Kamtchatka"
+    ],
+    "Terranova": [
+        "Labrador",
+        "Nueva York"
+    ],
+    "Sudáfrica": [
+        "Etiopía",
+        "Zaire"
+    ],
+    "Sahara": [
+        "Zaire"
+    ],
+    "Oregón": [
+        "Alaska",
+        "Yukon",
+        "California"
+    ],
+    "Australia": [],
+    "Labrador": [
+        "Terranova"
+    ],
+    "Polonia": [
+        "Alemania",
+        "Rusia",
+        "Turquía"
+    ],
+    "Malasia": [
+        "India",
+        "China",
+        "Java",
+        "Borneo"
+    ],
+    "Tartaria": [
+        "Aral",
+        "Siberia",
+        "Taymir"
+    ],
+    "Java": [
+        "Malasia",
+        "Borneo"
+    ]
+}
