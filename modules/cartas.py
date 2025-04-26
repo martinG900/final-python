@@ -23,6 +23,12 @@ class Mazo:
 
         shuffle(self.mazo)
 
+    def introducir(self, cartas: list):
+        """Función a la que se le entrega una lista de nombres de cartas
+        y los introduce al mazo"""
+
+        self.mazo.extend(cartas)
+
     def repartir(self, **kwargs):
         """Función que puede tomar un número de cartas del tope de este
         mazo entregándole el número n de cartas a tomar o puede tomar
@@ -35,16 +41,14 @@ class Mazo:
         repartidas = []
 
         if "n" in kwargs:
-            for a in range(kwargs["n"]):
-                repartidas.append(self.mazo[0])
-                self.mazo.pop(0)
+            [repartidas.append(self.mazo.pop(0)) for a in range(kwargs["n"])]
         else:
             cartas = kwargs["nombres"].copy()
             for a in cartas:
                 repartidas.append(a)
                 self.mazo.remove(a)
 
-        kwargs["mazo"].mazo.extend(repartidas)
+        kwargs["mazo"].introducir(repartidas)
 
     def quitar(self, nombres):
         # VOY A ELIMINAR ESTA FUNCIÓN
@@ -59,12 +63,6 @@ class Mazo:
         """Función que devuelve el mazo a su cantidad original, con las cartas sin mezclar"""
 
         self.mazo = self.original
-
-    def introducir(self, mazo2):
-        # VOY A ELIMINAR ESTA FUNCIÓN
-        """Función que toma un objeto Mazo y añade sus cartas a este objeto Mazo"""
-
-        self.mazo.extend(mazo2.mazo)
 
     def __repr__(self):
         return str(self.mazo)

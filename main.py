@@ -50,7 +50,6 @@ def tiros(m: int, jugs):
 
 # Abrir las cartas. Se considera al 0 de la lista como el tope del mazo
 
-
 with open(Path(".") / "data" / "cartas.json", "r", encoding="utf-8") as f:
     cartas = json.load(f)
 
@@ -89,8 +88,8 @@ mazo.mezclar()
 # Cada jugador añade 5 ejércitos repartidos entre sus paí­ses. Pueden
 # reclamar la misma región más de una vez
 
-[i.reclamos(5,list(i.territorios.keys())) for i in J]
+[i.reclamos(5, list(i.territorios.keys())) for i in J]
 
 # Cada jugador añade 3 ejércitos repartidos entre sus paí­ses
 
-[i.reclamos(3,list(i.territorios.keys())) for i in J]
+[i.reclamos(3, list(i.territorios.keys())) for i in J]

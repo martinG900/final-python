@@ -18,9 +18,8 @@ class Jugador:
         Jugador.jugadores.append(self)
 
     def robar(self, n: int, mazo2):
-        """Función que toma un número n de cartas de un objeto Mazo y lo entrega al jugador.
-        Si se configura sumar como True, la función añade las cartas robadas a la mano del
-        jugador. De otra forma, el jugador toma una mano nueva"""
+        """Función que roba n cartas de un objeto Mazo y los añade a
+        las cartas del jugador"""
 
         mazo2.repartir(n=n, mazo=self.cartas)
 
@@ -50,17 +49,19 @@ class Jugador:
             else:
                 self.territorios[a] = n
             self.ejercitos -= n
-    
-    def reclamos(self,m:int,terrs:list):
-        '''Función que realiza el método reclamar un número m veces,
-        en cada iteración reclamando un territorio elegido eleatoriamente
-        entre los territorios proveídos como una lista'''
 
-        for a in range(m):
+    def reclamos(self, m: int, terrs: list):
+        """Función que realiza el método reclamar un número m veces,
+        en cada iteración reclamando un territorio elegido eleatoriamente
+        entre los territorios proveídos como una lista"""
+
+        [
             self.reclamar(
                 1,
                 [terrs[int(np.random.rand() * len(terrs))]],
             )
+            for a in range(m)
+        ]
 
     def __repr__(self):
         return self.nombre
