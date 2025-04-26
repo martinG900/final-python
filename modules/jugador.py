@@ -14,7 +14,7 @@ class Jugador:
         self.cartas = Mazo([])
         self.dado = 0
         self.ejercitos = 100
-        self.territorios = {}
+        self.territorios = []
         Jugador.jugadores.append(self)
 
     def robar(self, n: int, mazo2):
@@ -23,14 +23,15 @@ class Jugador:
 
         mazo2.repartir(n=n, mazo=self.cartas)
 
-    def soltar(self, cartas: list, mazo):
-        """Función que suelta cartas, eliminándolas de la mano del jugador. Las cartas se eligen
+    def soltar(self, mazo1, mazo2):
+        """Función que suelta las cartas de un objeto Mazo, mazo1,
+        eliminándolas de la mano del jugador. Las cartas se eligen
         poniendo sus nombres en el argumento como una lista. Las cartas
         se añaden al objeto Mazo entregado en el argumento"""
 
-        self.cartas.repartir(nombres=cartas, mazo=mazo)
+        self.cartas.repartir(nombres=mazo1, mazo=mazo2)
 
-    def tirar(self):
+    def lanzar(self):
         """Función que genera un número entero entre 1 y 6 y lo asocia al valor dado del jugador.
         Devuleve el valor generado"""
 
@@ -38,22 +39,26 @@ class Jugador:
         return self.dado
 
     def reclamar(self, terrs: list, n: int):
-        """Función a la que se le entrega una lista de territorios y los añade al diccionario de territorios
-        del jugador. Reclamar un territorio implica colocar n ejércitos en este, por lo que se reduce el número
-        de ejércitos disponibles del jugador en n al reclamar. Si el jugador ya tiene uno de los territorios dados,
-        añade n ejércitos más a este territorio"""
+        """Función a la que se le entrega una lista de objetos Pais y
+        los añade a la lista de territorios del jugador. Reclamar un
+        pais implica colocar n ejércitos en este, por lo que se reduce
+        el número de ejércitos disponibles del jugador en n al reclamar.
+        Si el jugador ya tiene uno de los paises dados, añade n
+        ejércitos más a este país"""
 
         for a in terrs:
-            if a in self.territorios.keys():
-                self.territorios[a] += n
+            if a in self.territorios:
+                a.reforzar(n)
             else:
-                self.territorios[a] = n
+                a.incorporar(self)
+                a.reforzar(n)
+                self.territorios.append(a)
             self.ejercitos -= n
 
     def reclamos(self, m: int, terrs: list):
         """Función que realiza el método reclamar un número m veces,
         en cada iteración reclamando un territorio elegido eleatoriamente
-        entre los territorios proveídos como una lista"""
+        entre los territorios proveídos como una lista de objetos Pais"""
 
         # Hay que revisar que solo se reclaman países sin ejércitos
         # enemigos en él
@@ -63,9 +68,10 @@ class Jugador:
             for a in range(m)
         ]
 
-    def quitar(self, pais: str, n: int):
-        """Funcion que quita n ejércitos de un país del jugador. Además
-        si el país se queda sin ejércitos, el jugador pierde dicho país"""
+    def quitar(self, pais, n: int):
+        """Funcion que quita n ejércitos de un objeto País del jugador.
+        Además si el país se queda sin ejércitos, el jugador pierde
+        dicho país"""
 
         # Hay que revisar que se quite el número adecuado de ejércitos
         # del país para evitar que haya un número negativo de ejércitos

@@ -11,8 +11,7 @@ class Mazo:
         if isinstance(cartas, dict):
             self.cartas = cartas
             self.mazo = []
-            for a in self.cartas.values():
-                self.mazo.extend(a)
+            [self.mazo.extend(i) for i in self.cartas.values()]
         else:
             self.mazo = cartas
 
@@ -36,14 +35,16 @@ class Mazo:
         nombres de las cartas. Además, se le entrega un objeto Mazo
         para añadir las cartas tomadas de este mazo al otro"""
 
-        # Usar kwargs como {'n':int,'nombres'=list,'mazo'=objeto Mazo}
+        # Usar kwargs como {'n':int,'nombres'=obejeto Mazo,
+        # 'mazo'=objeto Mazo}
 
         repartidas = []
 
         if "n" in kwargs:
             [repartidas.append(self.mazo.pop(0)) for a in range(kwargs["n"])]
         else:
-            cartas = kwargs["nombres"].copy()
+            #cartas = kwargs["nombres"].copy()
+            cartas=kwargs['nombres'].mazo.copy()
             for a in cartas:
                 repartidas.append(a)
                 self.mazo.remove(a)
@@ -72,7 +73,7 @@ class Mazo:
 
     def __len__(self):
         return len(self.mazo)
-    
+
     def __iter__(self):
         for a in self.mazo:
             yield a

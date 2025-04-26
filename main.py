@@ -24,7 +24,7 @@ def tiros(m: int, participantes):
         jugs = participantes.copy()
 
         for a in jugs:
-            a.tirar()
+            a.lanzar()
 
         # Los jugadores se ordenan según sus dados en orden descendente
 
@@ -56,13 +56,15 @@ def tiros(m: int, participantes):
 with open(Path(".") / "data" / "cartas.json", "r", encoding="utf-8") as f:
     cartas = json.load(f)
 
-mazo = Mazo(cartas)
+# Se crean los objetos Pais por cada país en el mazo de cartas. Luego se
+# crea un objeto Mazo donde cada carta es un objeto pais
+
+mazo1 = []
+[mazo1.extend(i) for i in cartas.values()]
+paises = [Pais(i) for i in mazo1]
+
+mazo = Mazo(paises)
 mazo.mezclar()
-
-# Crear países
-
-paises=[Pais(i) for i in mazo]
-Pais.limites()
 
 # Crear jugadores
 
@@ -83,24 +85,28 @@ else:
 
     [j.robar(1, mazo) for j in tiros(2, J)]
 
-# Cada jugador añade 1 ejército a sus países
+# Cada jugador añade 1 ejército a sus países. Los países de un jugador
+# son objetos Pais
 
-[j.reclamar(j.cartas.mazo, 1) for j in J]
+[j.reclamar(j.cartas, 1) for j in J]
 
 # Quitar las cartas de las manos de los jugadores y resetear el mazo de cartas
 
-[j.soltar(j.cartas.mazo, mazo) for j in J]
+# ¡ES PROBABLE QUE CAMBIE EL MÉTODO soltar SIMPLEMENTE POR LLAMAR A LAS
+# CARTAS DEL JUGADOR!
+
+[j.soltar(j.cartas, mazo) for j in J]
 
 mazo.mezclar()
 
 # Cada jugador añade 5 ejércitos repartidos entre sus paí­ses. Pueden
 # reclamar la misma región más de una vez
 
-[i.reclamos(5, list(i.territorios.keys())) for i in J]
+[i.reclamos(5, i.territorios) for i in J]
 
 # Cada jugador añade 3 ejércitos repartidos entre sus paí­ses
 
-[i.reclamos(3, list(i.territorios.keys())) for i in J]
+[i.reclamos(3, i.territorios) for i in J]
 
 ## TURNOS DE JUGADORES
 
