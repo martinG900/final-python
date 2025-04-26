@@ -61,7 +61,8 @@ mazo.mezclar()
 
 # Crear países
 
-# Todavía no sé si voy a incluir un objeto Pais
+paises=[Pais(i) for i in mazo]
+Pais.limites()
 
 # Crear jugadores
 

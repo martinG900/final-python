@@ -72,3 +72,7 @@ class Mazo:
 
     def __len__(self):
         return len(self.mazo)
+    
+    def __iter__(self):
+        for a in self.mazo:
+            yield a
