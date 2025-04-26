@@ -3,6 +3,7 @@ from pathlib import Path
 from random import shuffle
 from modules.cartas import Mazo
 from modules.jugador import Jugador
+import numpy as np
 
 # Funciones
 
@@ -85,16 +86,11 @@ else:
 
 mazo.mezclar()
 
-# Cada jugador añade 5 ejércitos repartidos entre sus paí­ses
+# Cada jugador añade 5 ejércitos repartidos entre sus paí­ses. Pueden
+# reclamar la misma región más de una vez
 
-for a in J:
-    terrs = list(a.territorios.keys()).copy()
-    shuffle(terrs)
-    a.reclamar(1, terrs[0:5])
+[i.reclamos(5,list(i.territorios.keys())) for i in J]
 
 # Cada jugador añade 3 ejércitos repartidos entre sus paí­ses
 
-for a in J:
-    terrs = list(a.territorios.keys()).copy()
-    shuffle(terrs)
-    a.reclamar(1, terrs[0:3])
+[i.reclamos(3,list(i.territorios.keys())) for i in J]
