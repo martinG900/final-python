@@ -12,9 +12,8 @@ class Jugador:
     def __init__(self, nombre):
         self.nombre = nombre
         self.cartas = Mazo([])
-        self.dado = 0
+        self.dado = []
         self.ejercitos = 100
-        self.territorios = []
         Jugador.jugadores.append(self)
 
     def robar(self, n: int, mazo2):
@@ -31,12 +30,12 @@ class Jugador:
 
         self.cartas.repartir(nombres=mazo1, mazo=mazo2)
 
-    def lanzar(self):
-        """Función que genera un número entero entre 1 y 6 y lo asocia al valor dado del jugador.
-        Devuleve el valor generado"""
+    def lanzar(self, n: int):
+        """Función que hace que el jugador lance n dados de seis caras,
+        asociando los valores obtenidos al valor dado del objeto
+        Jugador"""
 
-        self.dado = np.int64(6 * np.random.rand() + 1)
-        return self.dado
+        self.dado = [np.int64(6 * np.random.rand() + 1) for i in range(n)]
 
     def reclamar(self, terrs: list, n: int):
         """Función a la que se le entrega una lista de objetos Pais y
@@ -47,12 +46,11 @@ class Jugador:
         ejércitos más a este país"""
 
         for a in terrs:
-            if a in self.territorios:
+            if a.jugador==self:
                 a.reforzar(n)
             else:
-                a.incorporar(self)
+                a.conquistar(self)
                 a.reforzar(n)
-                self.territorios.append(a)
             self.ejercitos -= n
 
     def reclamos(self, m: int, terrs: list):
@@ -76,10 +74,7 @@ class Jugador:
         # Hay que revisar que se quite el número adecuado de ejércitos
         # del país para evitar que haya un número negativo de ejércitos
 
-        self.territorios[pais] -= n
-
-        if self.territorios[pais] == 0:
-            self.territorios.pop(pais)
+        pais.retirar(n)
 
         self.ejercitos += n
 
@@ -95,8 +90,23 @@ class Jugador:
         self.quitar(pais1, n)
         self.reclamar([pais2], n)
 
+    def recuperar(self, n: int):
+        """Función que añade n ejércitos a los ejércitos del jugador"""
+
+        self.ejercitos += n
+
+    def usar(self, n: int):
+        """Función que retira n ejércitos de los ejércitos del jugador"""
+
+        self.ejercitos -= n
+
     def __repr__(self):
         return self.nombre
 
     def __str__(self):
         return self.nombre
+    
+    def __eq__(self,jug):
+        if isinstance(jug,Jugador):
+            return self.nombre==jug.nombre
+        return False
