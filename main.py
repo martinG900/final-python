@@ -64,12 +64,10 @@ J = [Jugador(f"José {i+1}") for i in range(numJ)]
 
 # Repartir paí­ses por jugador. Recordar que pueden sobrar dos cartas si jugadores=3,4,6
 
-if numJ in [2, 5]:
-    mano = len(mazo) // numJ
-    [i.robar(mano, mazo) for i in J]
+if len(mazo) % numJ == 0:
+    [i.robar(len(mazo) // numJ, mazo) for i in J]
 else:
-    mano = (len(mazo) - 2) // numJ
-    [i.robar(mano, mazo) for i in J]
+    [i.robar((len(mazo) - 2) // numJ, mazo) for i in J]
 
     # Introducir el tiro de dados y las dos cartas extra
 
