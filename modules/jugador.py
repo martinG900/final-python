@@ -16,21 +16,19 @@ class Jugador:
         self.territorios={}
         Jugador.jugadores.append(self)
     
-    def robar(self,n:int,mazo,sumar=False):
+    def robar(self,n:int,mazo2):
         '''Función que toma un número n de cartas de un objeto Mazo y lo entrega al jugador.
         Si se configura sumar como True, la función añade las cartas robadas a la mano del
         jugador. De otra forma, el jugador toma una mano nueva'''
 
-        if sumar:
-            self.cartas.intr(mazo.repartir(n))
-        else:
-            self.cartas=mazo.repartir(n)
+        mazo2.repartir(n=n,mazo=self.cartas)
     
-    def soltar(self,*args):
+    def soltar(self,cartas:list,mazo):
         '''Función que suelta cartas, eliminándolas de la mano del jugador. Las cartas se eligen
-        poniendo sus nombres en el argumento como una lista'''
+        poniendo sus nombres en el argumento como una lista. Las cartas
+        se añaden al objeto Mazo entregado en el argumento'''
 
-        self.cartas.quitar(args[0])
+        self.cartas.repartir(nombres=cartas,mazo=mazo)
     
     def tirar(self):
         '''Función que genera un número entero entre 1 y 6 y lo asocia al valor dado del jugador.
@@ -39,13 +37,13 @@ class Jugador:
         self.dado=np.int64(6*np.random.rand()+1)
         return self.dado
     
-    def reclamar(self,n:int,*args):
+    def reclamar(self,n:int,terrs):
         '''Función a la que se le entrega una lista de territorios y los añade al diccionario de territorios
         del jugador. Reclamar un territorio implica colocar n ejércitos en este, por lo que se reduce el número
         de ejércitos disponibles del jugador en n al reclamar. Si el jugador ya tiene uno de los territorios dados,
         añade n ejércitos más a este territorio'''
 
-        for a in args[0]:
+        for a in terrs:
             if a in self.territorios.keys():
                 self.territorios[a]+=n
             else:

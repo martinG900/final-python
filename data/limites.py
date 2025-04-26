@@ -3,6 +3,10 @@ from pathlib import Path
 import json
 import numpy as np
 
+##Programa para crear un diccionario con cada país y sus limítrofes
+#No es esencial para el programa principal una vez creado el archivo
+#limites.json
+
 #Abrir las cartas para obtener la lista de países
 
 with open(Path()/'data'/'cartas.json','r',encoding='utf-8') as f:
