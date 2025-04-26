@@ -37,7 +37,7 @@ class Jugador:
         self.dado = np.int64(6 * np.random.rand() + 1)
         return self.dado
 
-    def reclamar(self, n: int, terrs: list):
+    def reclamar(self, terrs: list, n: int):
         """Función a la que se le entrega una lista de territorios y los añade al diccionario de territorios
         del jugador. Reclamar un territorio implica colocar n ejércitos en este, por lo que se reduce el número
         de ejércitos disponibles del jugador en n al reclamar. Si el jugador ya tiene uno de los territorios dados,
@@ -55,13 +55,39 @@ class Jugador:
         en cada iteración reclamando un territorio elegido eleatoriamente
         entre los territorios proveídos como una lista"""
 
+        # Hay que revisar que solo se reclaman países sin ejércitos
+        # enemigos en él
+
         [
-            self.reclamar(
-                1,
-                [terrs[int(np.random.rand() * len(terrs))]],
-            )
+            self.reclamar([terrs[int(np.random.rand() * len(terrs))]], 1)
             for a in range(m)
         ]
+
+    def quitar(self, pais: str, n: int):
+        """Funcion que quita n ejércitos de un país del jugador. Además
+        si el país se queda sin ejércitos, el jugador pierde dicho país"""
+
+        # Hay que revisar que se quite el número adecuado de ejércitos
+        # del país para evitar que haya un número negativo de ejércitos
+
+        self.territorios[pais] -= n
+
+        if self.territorios[pais] == 0:
+            self.territorios.pop(pais)
+
+        self.ejercitos += n
+
+    def mover(self, pais1: str, pais2: str, n: int):
+        """Función que mueve n ejércitos del jugador de un país de su
+        propiedad a otro que puede o no ser de su propiedad. Si no es
+        de su propiedad, el movimiento solo es válido si dicho país no
+        contiene ejércitos"""
+
+        # El chequeo de que no quedan ejércitos en el país invadido se
+        # realiza durante el ataque
+
+        self.quitar(pais1, n)
+        self.reclamar([pais2], n)
 
     def __repr__(self):
         return self.nombre
