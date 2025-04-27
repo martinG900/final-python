@@ -32,7 +32,7 @@ class Jugador:
 
         mazo2.repartir(n=n, mazo=self.cartas)
 
-    def soltar(self, mazo1,mazo2):
+    def soltar(self, mazo1, mazo2):
         """Función que suelta las cartas de un objeto Mazo, mazo1,
         eliminándolas de la mano del jugador. Las cartas se eligen
         poniendo sus nombres en el argumento como una lista. Las cartas
@@ -50,9 +50,9 @@ class Jugador:
     def reclamar(self, terrs: list, n: int):
         """Función a la que se le entrega una lista de objetos Pais y
         los añade a la lista de territorios del jugador. Reclamar un
-        pais implica colocar n ejércitos en este, por lo que se reduce
+        país implica colocar n ejércitos en este, por lo que se reduce
         el número de ejércitos disponibles del jugador en n al reclamar.
-        Si el jugador ya tiene uno de los paises dados, añade n
+        Si el jugador ya tiene uno de los países dados, añade n
         ejércitos más a este país"""
 
         for a in terrs:
@@ -120,22 +120,24 @@ class Jugador:
         propias = self.cartas.copiar()
         propiasSimbolos = [i.simbolo for i in propias]
         print(propiasSimbolos)
-        simbolos = [i.simbolo for i in propias]
         simbolosList = ["galeón", "cañón", "globo"]
         terrs = self.territorios.copy()
         canjeo = False
 
         for a in simbolosList:
+            descarte = [i for i in propias if i.simbolo == a]
             if propiasSimbolos.count(a) >= 3:
-                descarte=[i for i in propias if i.simbolo==a]
+                descarte[:3]
                 canjeo = True
                 break
             elif propiasSimbolos.count(a) + propiasSimbolos.count("comodín") >= 3:
+                descarte = descarte + [i for i in propias if i.simbolo == "comodín"]
                 canjeo = True
                 break
 
         if canjeo:
             self.canje += 1
+            self.soltar(Mazo(descarte), mazo)
             if self.canje == 1:
                 self.reclamos(4, terrs)
             elif self.canje == 2:
