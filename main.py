@@ -62,11 +62,8 @@ mazo1 = []
 [mazo1.extend(i) for i in cartas.values()]
 paises = [Pais(i) for i in mazo1]
 
-print(paises)
-
 mazo = Mazo(paises)
 mazo.mezclar()
-print(paises)
 
 # Crear jugadores
 
@@ -108,11 +105,14 @@ mazo.mezclar()
 # Cada jugador añade 5 ejércitos repartidos entre sus paí­ses. Pueden
 # reclamar la misma región más de una vez
 
-[i.reclamos(5, [j for j in paises if j.jugador == i]) for i in J]
+[i.reclamos(5, [j for j in i.territorios]) for i in J]
 
 # Cada jugador añade 3 ejércitos repartidos entre sus paí­ses
 
-[i.reclamos(3, [j for j in paises if j.jugador == i]) for i in J]
+[i.reclamos(3, [j for j in i.territorios]) for i in J]
+
+J[0].robar(5,mazo)
+J[0].canjear(mazo)
 
 ## TURNOS DE JUGADORES
 
@@ -158,10 +158,10 @@ mazo.mezclar()
 # luego se cumple la relación 10+5(n-3) ejércitos, con n el número del
 # canje
 
-#El símbolo de una carta está asociado a un objeto Pais
+# El símbolo de una carta está asociado a un objeto Pais
 
-#Se añadió el atributo canje al objeto Jugador para hacer seguimiento
-#del número de canjes que realice durante la partida
+# Se añadió el atributo canje al objeto Jugador para hacer seguimiento
+# del número de canjes que realice durante la partida
 
 ## FASE DE ATAQUE
 

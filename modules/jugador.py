@@ -13,6 +13,7 @@ class Jugador:
         self.nombre = nombre
         self.cartas = Mazo([])
         self.dado = []
+        self.territorios = []
         self.ejercitos = 100
         self.conquistador = False
         # Conquistador revisa si se conquistó un país durante la fase
@@ -55,12 +56,10 @@ class Jugador:
         ejércitos más a este país"""
 
         for a in terrs:
-            if a.jugador == self:
-                a.reforzar(n)
-            else:
-                a.conquistar(self)
-                a.reforzar(n)
-            self.ejercitos -= n
+            if a not in self.territorios:
+                self.invadir(a)
+            a.reforzar(n)
+            self.usar(n)
 
     def reclamos(self, m: int, terrs: list):
         """Función que realiza el método reclamar un número m veces,
@@ -75,8 +74,8 @@ class Jugador:
             for a in range(m)
         ]
 
-    def quitar(self, pais, n: int):
-        """Funcion que quita n ejércitos de un objeto País del jugador.
+    '''def quitar(self, pais, n: int):
+        """Función que quita n ejércitos de un objeto País del jugador.
         Además si el país se queda sin ejércitos, el jugador pierde
         dicho país"""
 
@@ -84,18 +83,26 @@ class Jugador:
         # del país para evitar que haya un número negativo de ejércitos
 
         pais.retirar(n)
-
-        self.ejercitos += n
+        self.recuperar(n)'''
 
     def recuperar(self, n: int):
-        """Función que añade n ejércitos a los ejércitos del jugador"""
+        """Función que añade n ejércitos a la reserva del jugador"""
 
         self.ejercitos += n
 
     def usar(self, n: int):
-        """Función que retira n ejércitos de los ejércitos del jugador"""
+        """Función que retira n ejércitos de la reserva del jugador"""
 
         self.ejercitos -= n
+
+    def invadir(self, pais):
+        """Función a la que se le entrega un objeto Pais. El jugador lo
+        reclama, añadiéndolo a su lista de territorios. También cambia
+        el atributo jugador del país"""
+
+        self.territorios.append(pais)
+        self.conquistar()
+        pais.jugador = self
 
     def conquistar(self):
         """Función que define el atributo de conquistador en True. Se
@@ -109,6 +116,24 @@ class Jugador:
         Pais al atributo por_conquistar"""
 
         self.por_conquistar = pais
+
+    def canjear(self, mazo):
+        """Función que hace que el jugador realice un canje. Sube el
+        atributo de canje en uno. Para saber qué cartas le pertenecen,
+        se le entrega un objeto Mazo, que es una lista de objetos Pais,
+        y revisa cuál de estos países le pertenece"""
+
+        # Revisar si el canje es posible
+
+        propias = self.cartas.copiar()
+        simbolos = [i.simbolo for i in propias]
+        simbolosList = ["galeón", "cañón", "globo"]
+
+        for a in simbolosList:
+            if propias.count(a) >= 3:
+                if self.canje == 1:
+                    None
+                self.canje += 1
 
     def __repr__(self):
         return self.nombre

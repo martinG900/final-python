@@ -6,10 +6,9 @@ class Mazo:
     carta del mazo y es capaz de mezclarlas y cortarlas en mazos más pequeños.
     Se inicializa entregándole una lista o diccionario"""
 
-    def __init__(self, cartas):
-        
-        self.mazo = cartas.copy()
+    def __init__(self, cartas: list):
 
+        self.mazo = cartas.copy()
         self.original = self.mazo.copy()
 
     def mezclar(self):
@@ -38,16 +37,19 @@ class Mazo:
         if "n" in kwargs:
             [repartidas.append(self.mazo.pop(0)) for a in range(kwargs["n"])]
         else:
-            # cartas = kwargs["nombres"].copy()
-            cartas = kwargs["nombres"].mazo.copy()
-            for a in cartas:
-                repartidas.append(a)
-                self.mazo.remove(a)
+            cartas = kwargs["nombres"].copiar()
+            repartidas.extend(cartas)
+            self.quitar(cartas)
 
         kwargs["mazo"].introducir(repartidas)
 
+    def copiar(self):
+        """Función que devuelve una copia de la lista de cartas del mazo.
+        Sirve para evitar problemas al modificar listas"""
+
+        return self.mazo.copy()
+
     def quitar(self, nombres):
-        # VOY A ELIMINAR ESTA FUNCIÓN
         """Función que quita cartas del mazo entregando una lista con los nombres de las cartas"""
 
         [self.mazo.remove(i) for i in nombres]

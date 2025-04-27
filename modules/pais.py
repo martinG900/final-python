@@ -27,16 +27,16 @@ class Pais:
 
     def __init__(self, nombre: str):
         self.nombre = nombre
-        self.ejercitos = 0
         self.jugador = None
+        self.ejercitos = 0
         self.dado = []
         if self not in Pais.paises:
             Pais.paises.append(self)
             self.limitrofes = [Pais(i) for i in Pais.limitrofes[self.nombre]]
-        
+
         for a in Pais.tarjetas.keys():
             if self.nombre in Pais.tarjetas[a]:
-                self.simbolo=a
+                self.simbolo = a
 
     def lanzar(self, n: int):
         """Función que lanza n dados de seis caras y los asocia al valor
@@ -51,45 +51,43 @@ class Pais:
         de la reserva del jugador asociado a este país"""
 
         self.ejercitos += n
-        self.jugador.usar(n)
 
     def retirar(self, n: int):
         """Función que retira n ejércitos del objeto Pais y los devuelve
         a la reserva del jugador que posee este país"""
 
         self.ejercitos -= n
-        self.jugador.recuperar(n)
 
-    def conquistar(self, jugador):
+    '''def conquistar(self, jugador):
         """Función a la que se le entrega un objeto Jugador y hace que
         el país pertenezca a dicho jugador cambiando el valor jugador
         del país"""
 
         self.jugador = jugador
-        self.jugador.conquistar()
+        self.jugador.conquistar()'''
 
     def mover(self, pais2, n: int):
         """Función que mueve n ejércitos de este país a un objeto Pais
         entregado en el argumento"""
 
-        # Quizás tenga que poner un getter aquí, cambiando la función
-        # reforzar para que el jugador no gane ejércitos por el
-        # movimiento
-
         # En esta función no se añade un chequeo de si pais2 es limítrofe
         # porque se supone que solo se usa la función en países adecuados
 
-        self.ejercitos -= n
-        pais2.ejercitos += n
+        self.retirar(n)
+        pais2.reforzar(n)
 
     def atacar(self, pais2):
-        """Función en la que el país elige otro objeto Pais y lo ataca"""
+        """Función en la que el país elige otro objeto Pais y lo ataca.
+        Las reglas del juego definen que pasa en caso de victorias,
+        derrotas o empates"""
 
         # Va a haber que añadir sistemas que revisen que el ataque sea
         # válido
 
         na = self.ejercitos - 1
         nd = pais2.ejercitos
+        ja=self.jugador
+        jd=pais2.jugador
 
         if na > 3:
             na = 3
@@ -122,8 +120,12 @@ class Pais:
 
     # Añadí eq para que dos objetos Pais sean iguales si tienen el
     # mismo nombre
+    # Añadí hash para poder comparar sets de países
 
     def __eq__(self, pais2):
         if isinstance(pais2, Pais):
             return self.nombre == pais2.nombre
         return False
+
+    def __hash__(self):
+        return hash(self.nombre)
