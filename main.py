@@ -98,7 +98,7 @@ else:
 # ¡ES PROBABLE QUE CAMBIE EL MÉTODO soltar SIMPLEMENTE POR LLAMAR A LAS
 # CARTAS DEL JUGADOR!
 
-[j.soltar(j.cartas, mazo) for j in J]
+[j.soltar(j.cartas,mazo) for j in J]
 
 mazo.mezclar()
 

@@ -32,7 +32,7 @@ class Jugador:
 
         mazo2.repartir(n=n, mazo=self.cartas)
 
-    def soltar(self, mazo1, mazo2):
+    def soltar(self, mazo1,mazo2):
         """Función que suelta las cartas de un objeto Mazo, mazo1,
         eliminándolas de la mano del jugador. Las cartas se eligen
         poniendo sus nombres en el argumento como una lista. Las cartas
@@ -118,23 +118,24 @@ class Jugador:
         # Revisar si el canje es posible
 
         propias = self.cartas.copiar()
-        propiasSimbolos=[i.simbolo for i in propias]
+        propiasSimbolos = [i.simbolo for i in propias]
         print(propiasSimbolos)
         simbolos = [i.simbolo for i in propias]
         simbolosList = ["galeón", "cañón", "globo"]
         terrs = self.territorios.copy()
-        canjeo=False
+        canjeo = False
 
         for a in simbolosList:
             if propiasSimbolos.count(a) >= 3:
-                canjeo=True
+                descarte=[i for i in propias if i.simbolo==a]
+                canjeo = True
                 break
-            elif propiasSimbolos.count(a)+propiasSimbolos.count('comodín')>=3:
-                canjeo=True
+            elif propiasSimbolos.count(a) + propiasSimbolos.count("comodín") >= 3:
+                canjeo = True
                 break
-        
+
         if canjeo:
-            self.canje+=1
+            self.canje += 1
             if self.canje == 1:
                 self.reclamos(4, terrs)
             elif self.canje == 2:

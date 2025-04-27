@@ -29,7 +29,7 @@ class Mazo:
         nombres de las cartas. Además, se le entrega un objeto Mazo
         para añadir las cartas tomadas de este mazo al otro"""
 
-        # Usar kwargs como {'n':int,'nombres'=obejeto Mazo,
+        # Usar kwargs como {'n':int,'nombres'=objeto Mazo,
         # 'mazo'=objeto Mazo}
 
         repartidas = []
