@@ -7,13 +7,8 @@ class Mazo:
     Se inicializa entregándole una lista o diccionario"""
 
     def __init__(self, cartas):
-
-        if isinstance(cartas, dict):
-            self.cartas = cartas
-            self.mazo = []
-            [self.mazo.extend(i) for i in self.cartas.values()]
-        else:
-            self.mazo = cartas
+        
+        self.mazo = cartas.copy()
 
         self.original = self.mazo.copy()
 
@@ -43,8 +38,8 @@ class Mazo:
         if "n" in kwargs:
             [repartidas.append(self.mazo.pop(0)) for a in range(kwargs["n"])]
         else:
-            #cartas = kwargs["nombres"].copy()
-            cartas=kwargs['nombres'].mazo.copy()
+            # cartas = kwargs["nombres"].copy()
+            cartas = kwargs["nombres"].mazo.copy()
             for a in cartas:
                 repartidas.append(a)
                 self.mazo.remove(a)

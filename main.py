@@ -62,8 +62,11 @@ mazo1 = []
 [mazo1.extend(i) for i in cartas.values()]
 paises = [Pais(i) for i in mazo1]
 
+print(paises)
+
 mazo = Mazo(paises)
 mazo.mezclar()
+print(paises)
 
 # Crear jugadores
 
@@ -133,7 +136,61 @@ mazo.mezclar()
 # solo ocurre si se realizó la fase de Ataque y se Movió ejércitos
 # durante esta fase
 
+# En los movimientos, NUNCA puede dejarse un país sin ejércitos. Tampoco
+# puede moverse un ejército a un país enemigo
+
+##FASE DE CANJEO
+
+# Fase de incorporación de ejércitos en el que el jugador puede decidir
+# si quiere canjear las cartas que posee a cambio de incorporar ejércitos
+# a sus países
+
+# El canje solo puede realizarse si el jugador posee tres cartas con
+# símbolos todos iguales o todos diferentes. Los comodines actúan como
+# cualquier símbolo, aplicado a conveniencia
+
+# (USAR SETS PARA CHEQUEAR LOS CANJES)
+
+# El número de ejércitos que recibe depende del número de canje
+# realizado.
+
+# 1er canje: 4 ejércitos, 2do canje: 7 ejércitos, 3er canje: 10 ejércitos,
+# luego se cumple la relación 10+5(n-3) ejércitos, con n el número del
+# canje
+
+#El símbolo de una carta está asociado a un objeto Pais
+
+#Se añadió el atributo canje al objeto Jugador para hacer seguimiento
+#del número de canjes que realice durante la partida
+
 ## FASE DE ATAQUE
 
 # Se consideró que un ataque ocurre entre dos países, no entre dos
 # jugadores. Esto simplifica las interacciones
+
+# Esta fase es opcional
+
+##FASE DE REAGRUPAMIENTO
+
+# El jugador Mueve sus tropas entre sus propios países que sean
+# limítrofes
+
+# Al entrar en esta fase, se da por terminada la fase de Ataque
+
+# El movimiento es realizado por los objetos País, no por un jugador
+
+# Pueden realizarse tantos movimientos válidos como se quiera
+
+##FASE DE LLAMADO
+
+# Ocurre si el jugador conquistó al menos un país. Se roba una carta del
+# mazo y puede haber despliegue de tropas o no. El atributo conquistador
+# del jugador chequea si se cumple esta condición
+
+# Si jugador roba carta de su propio país, agrega dos ejércitos en dicho
+# país. El jugador mantiene la carta
+
+# Si la carta no es de su propio país, pero el jugador lo conquista en
+# el turno posterior, añade dos ejércitos a dicho país al conquistarlo.
+# El atributo por_conquistar del jugador recibe este país y chequea si
+# fue conquistado a tiempo

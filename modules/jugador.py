@@ -14,6 +14,15 @@ class Jugador:
         self.cartas = Mazo([])
         self.dado = []
         self.ejercitos = 100
+        self.conquistador = False
+        # Conquistador revisa si se conquistó un país durante la fase
+        # de ataque. Sirve para luego pasar a la fase de llamado
+        self.por_conquistar = None
+        # por_conquistar revisa si hay un país que el jugador debe
+        # conquistar en el siguiente turno para recibir dos ejércitos
+        # extra
+        self.canje = 0
+        # canje revisa el número de canjes realizado por el jugador
         Jugador.jugadores.append(self)
 
     def robar(self, n: int, mazo2):
@@ -46,7 +55,7 @@ class Jugador:
         ejércitos más a este país"""
 
         for a in terrs:
-            if a.jugador==self:
+            if a.jugador == self:
                 a.reforzar(n)
             else:
                 a.conquistar(self)
@@ -78,18 +87,6 @@ class Jugador:
 
         self.ejercitos += n
 
-    def mover(self, pais1: str, pais2: str, n: int):
-        """Función que mueve n ejércitos del jugador de un país de su
-        propiedad a otro que puede o no ser de su propiedad. Si no es
-        de su propiedad, el movimiento solo es válido si dicho país no
-        contiene ejércitos"""
-
-        # El chequeo de que no quedan ejércitos en el país invadido se
-        # realiza durante el ataque
-
-        self.quitar(pais1, n)
-        self.reclamar([pais2], n)
-
     def recuperar(self, n: int):
         """Función que añade n ejércitos a los ejércitos del jugador"""
 
@@ -100,13 +97,26 @@ class Jugador:
 
         self.ejercitos -= n
 
+    def conquistar(self):
+        """Función que define el atributo de conquistador en True. Se
+        usa para chequear el estado de la fase de Llamado"""
+
+        self.conquistador = True
+
+    def futuro(self, pais):
+        """Función que define si un jugador puede recibir tropas extra
+        si conquista un país en el siguiente turno. Coloca un objeto
+        Pais al atributo por_conquistar"""
+
+        self.por_conquistar = pais
+
     def __repr__(self):
         return self.nombre
 
     def __str__(self):
         return self.nombre
-    
-    def __eq__(self,jug):
-        if isinstance(jug,Jugador):
-            return self.nombre==jug.nombre
+
+    def __eq__(self, jug):
+        if isinstance(jug, Jugador):
+            return self.nombre == jug.nombre
         return False

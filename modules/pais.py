@@ -14,8 +14,14 @@ class Pais:
     # ejército tienen y a qué jugador pertenencen, en lugar de que los
     # combates sean jugador contra jugador
 
+    # El conteo de tarjetas se usa para añadir el símbolo que
+    # corresponde a cada país
+
     with open(Path() / "data" / "limites.json", encoding="utf-8") as f:
         limitrofes = json.load(f)
+
+    with open(Path(".") / "data" / "cartas.json", "r", encoding="utf-8") as f:
+        tarjetas = json.load(f)
 
     paises = []
 
@@ -27,6 +33,10 @@ class Pais:
         if self not in Pais.paises:
             Pais.paises.append(self)
             self.limitrofes = [Pais(i) for i in Pais.limitrofes[self.nombre]]
+        
+        for a in Pais.tarjetas.keys():
+            if self.nombre in Pais.tarjetas[a]:
+                self.simbolo=a
 
     def lanzar(self, n: int):
         """Función que lanza n dados de seis caras y los asocia al valor
@@ -56,10 +66,18 @@ class Pais:
         del país"""
 
         self.jugador = jugador
+        self.jugador.conquistar()
 
     def mover(self, pais2, n: int):
         """Función que mueve n ejércitos de este país a un objeto Pais
         entregado en el argumento"""
+
+        # Quizás tenga que poner un getter aquí, cambiando la función
+        # reforzar para que el jugador no gane ejércitos por el
+        # movimiento
+
+        # En esta función no se añade un chequeo de si pais2 es limítrofe
+        # porque se supone que solo se usa la función en países adecuados
 
         self.ejercitos -= n
         pais2.ejercitos += n
@@ -77,21 +95,24 @@ class Pais:
             na = 3
         if nd > 3:
             nd = 3
-        
-        da=self.lanzar(na)
-        dd=pais2.lanzar(nd)
+
+        da = self.lanzar(na)
+        dd = pais2.lanzar(nd)
 
         da.sort(reverse=True)
         dd.sort(reverse=True)
 
-        for m in range(min([len(da),len(dd)])):
+        for m in range(min([len(da), len(dd)])):
             if dd[m] >= da[m]:
                 self.retirar(1)
             else:
                 pais2.retirar(1)
                 if pais2.ejercitos == 0:
                     pais2.conquistar(self.jugador)
-                    self.mover(pais2, int(2 * np.random.rand() + 1))
+                    if self.ejercitos == 1:
+                        self.mover(pais2, 1)
+                    else:
+                        self.mover(pais2, int(2 * np.random.rand() + 1))
 
     def __repr__(self):
         return self.nombre
@@ -103,4 +124,6 @@ class Pais:
     # mismo nombre
 
     def __eq__(self, pais2):
-        return self.nombre == pais2.nombre
+        if isinstance(pais2, Pais):
+            return self.nombre == pais2.nombre
+        return False
