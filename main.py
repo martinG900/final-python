@@ -110,9 +110,12 @@ mazo.mezclar()
 # Cada jugador añade 3 ejércitos repartidos entre sus paí­ses
 
 [i.reclamos(3, [j for j in i.territorios]) for i in J]
-
+print('antes del canje')
+print([(i,i.ejercitos) for i in J[0].territorios])
 J[0].robar(5,mazo)
 J[0].canjear(mazo)
+print('despues del canje')
+print([(i,i.ejercitos) for i in J[0].territorios])
 
 ## TURNOS DE JUGADORES
 

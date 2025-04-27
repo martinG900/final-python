@@ -58,15 +58,14 @@ class Pais:
 
         self.ejercitos -= n
 
-    '''def conquistar(self, jugador):
+    def conquistado(self, jugador):
         """Función a la que se le entrega un objeto Jugador y hace que
         el país pertenezca a dicho jugador cambiando el valor jugador
         del país"""
 
         self.jugador = jugador
-        self.jugador.conquistar()'''
 
-    def mover(self, pais2, n: int):
+    def mover(self, n: int, pais2):
         """Función que mueve n ejércitos de este país a un objeto Pais
         entregado en el argumento"""
 
@@ -86,8 +85,8 @@ class Pais:
 
         na = self.ejercitos - 1
         nd = pais2.ejercitos
-        ja=self.jugador
-        jd=pais2.jugador
+        ja = self.jugador
+        jd = pais2.jugador
 
         if na > 3:
             na = 3
@@ -102,15 +101,15 @@ class Pais:
 
         for m in range(min([len(da), len(dd)])):
             if dd[m] >= da[m]:
-                self.retirar(1)
+                ja.recuperar(1, self)
             else:
-                pais2.retirar(1)
+                jd.recuperar(1, pais2)
                 if pais2.ejercitos == 0:
-                    pais2.conquistar(self.jugador)
-                    if self.ejercitos == 1:
-                        self.mover(pais2, 1)
+                    ja.invadir(pais2)
+                    if self.ejercitos > 2:
+                        self.mover(int(2 * np.random.rand() + 1), pais2)
                     else:
-                        self.mover(pais2, int(2 * np.random.rand() + 1))
+                        self.mover(1, pais2)
 
     def __repr__(self):
         return self.nombre

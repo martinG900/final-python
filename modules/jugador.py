@@ -58,8 +58,7 @@ class Jugador:
         for a in terrs:
             if a not in self.territorios:
                 self.invadir(a)
-            a.reforzar(n)
-            self.usar(n)
+            self.usar(n, a)
 
     def reclamos(self, m: int, terrs: list):
         """Función que realiza el método reclamar un número m veces,
@@ -74,26 +73,25 @@ class Jugador:
             for a in range(m)
         ]
 
-    '''def quitar(self, pais, n: int):
-        """Función que quita n ejércitos de un objeto País del jugador.
-        Además si el país se queda sin ejércitos, el jugador pierde
-        dicho país"""
-
-        # Hay que revisar que se quite el número adecuado de ejércitos
-        # del país para evitar que haya un número negativo de ejércitos
-
-        pais.retirar(n)
-        self.recuperar(n)'''
-
-    def recuperar(self, n: int):
-        """Función que añade n ejércitos a la reserva del jugador"""
+    def recuperar(self, n: int, pais):
+        """Función que añade n ejércitos a la reserva del jugador,
+        retirando ejércitos de un país entregado en el argumento"""
 
         self.ejercitos += n
+        pais.retirar(n)
 
-    def usar(self, n: int):
-        """Función que retira n ejércitos de la reserva del jugador"""
+    def usar(self, n: int, pais):
+        """Función que retira n ejércitos de la reserva del jugador y
+        los coloca en un objeto Pais"""
 
         self.ejercitos -= n
+        pais.reforzar(n)
+
+    def conquistar(self):
+        """Función que define el atributo de conquistador en True. Se
+        usa para chequear el estado de la fase de Llamado"""
+
+        self.conquistador = True
 
     def invadir(self, pais):
         """Función a la que se le entrega un objeto Pais. El jugador lo
@@ -102,13 +100,7 @@ class Jugador:
 
         self.territorios.append(pais)
         self.conquistar()
-        pais.jugador = self
-
-    def conquistar(self):
-        """Función que define el atributo de conquistador en True. Se
-        usa para chequear el estado de la fase de Llamado"""
-
-        self.conquistador = True
+        pais.conquistado(self)
 
     def futuro(self, pais):
         """Función que define si un jugador puede recibir tropas extra
@@ -126,14 +118,31 @@ class Jugador:
         # Revisar si el canje es posible
 
         propias = self.cartas.copiar()
+        propiasSimbolos=[i.simbolo for i in propias]
+        print(propiasSimbolos)
         simbolos = [i.simbolo for i in propias]
         simbolosList = ["galeón", "cañón", "globo"]
+        terrs = self.territorios.copy()
+        canjeo=False
 
         for a in simbolosList:
-            if propias.count(a) >= 3:
-                if self.canje == 1:
-                    None
-                self.canje += 1
+            if propiasSimbolos.count(a) >= 3:
+                canjeo=True
+                break
+            elif propiasSimbolos.count(a)+propiasSimbolos.count('comodín')>=3:
+                canjeo=True
+                break
+        
+        if canjeo:
+            self.canje+=1
+            if self.canje == 1:
+                self.reclamos(4, terrs)
+            elif self.canje == 2:
+                self.reclamos(7, terrs)
+            elif self.canje == 3:
+                self.reclamos(10, terrs)
+            else:
+                self.reclamos(10 + 5 * (self.canje - 3), terrs)
 
     def __repr__(self):
         return self.nombre
