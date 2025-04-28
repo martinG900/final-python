@@ -127,19 +127,46 @@ mazo.mezclar()
 
 if len(mazo) == 0:
     descarte.repartir(nombres=descarte, mazo=mazo)
+
 mazo.mezclar()
 
 # Determinar orden en el que juegan los jugadores
 
-J_turnos = J.copy()
-shuffle(J_turnos)
+shuffle(J)
 
-##FASE DE CANJE
+###TURNOS DE JUGADORES
 
-for a in J_turnos:
+for a in J:
+
+    ##FASE DE CANJE
+
     a.canjear(descarte)
 
-##FASE DE ATAQUE
+    ##FASE DE ATAQUE
+
+    posibles=a.territorios.copy()
+    shuffle(posibles)
+
+    print('antes del ataque')
+    print([(i,i.ejercitos) for i in a.territorios])
+
+    ataco=False
+
+    for b in posibles:
+        if b.ejercitos>1 and not ataco:
+            for c in b.limitrofes:
+                d=[i for i in paises if i.nombre==c][0]
+                if d.jugador!=a:
+                    print([(i,i.ejercitos) for i in d.jugador.territorios])
+                    print(f'hay ataque entre {b} y {d}')
+                    a.atacar(b,d)
+                    ataco=True
+                    break
+
+    print('despues del ataque')
+    print([(i,i.ejercitos) for i in a.territorios])
+
+
 
 
 # El turno consiste de cinco fases: Canje, Ataque, Reagrupamiento,

@@ -18,7 +18,7 @@ class Pais:
     # corresponde a cada país
 
     with open(Path() / "data" / "limites.json", encoding="utf-8") as f:
-        limitrofes = json.load(f)
+        limites = json.load(f)
 
     with open(Path(".") / "data" / "cartas.json", "r", encoding="utf-8") as f:
         tarjetas = json.load(f)
@@ -26,13 +26,22 @@ class Pais:
     paises = []
 
     def __init__(self, nombre: str):
+
+        # PREGUNTAR CÓMO HACER QUE SI PAIS YA EXISTE, QUE AL CREARLO
+        # SIMPLEMENTE SE REFIERA AL QUE YA EXISTE
+
         self.nombre = nombre
         self.jugador = None
         self.ejercitos = 0
         self.dado = []
-        if self not in Pais.paises:
-            Pais.paises.append(self)
-            self.limitrofes = [Pais(i) for i in Pais.limitrofes[self.nombre]]
+
+        # PREGUNTAR POR RECURRENCIA Y COMO AÑADIR LIMÍTROFES SIN ELLA
+        Pais.paises.append(self)
+
+        # Hice que los limítrofes ya no sean objetos Pais. Solo
+        # strings
+
+        self.limitrofes = [i for i in Pais.limites[self.nombre]]
 
         for a in Pais.tarjetas.keys():
             if self.nombre in Pais.tarjetas[a]:
