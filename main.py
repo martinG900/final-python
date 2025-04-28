@@ -1,10 +1,9 @@
 import json
 from pathlib import Path
-from random import shuffle
+import random as rn
 from modules.cartas import Mazo
 from modules.jugador import Jugador
 from modules.pais import Pais
-import numpy as np
 
 # Funciones
 
@@ -132,11 +131,16 @@ mazo.mezclar()
 
 # Determinar orden en el que juegan los jugadores
 
-shuffle(J)
+rn.shuffle(J)
 
 ###TURNOS DE JUGADORES
 
 for a in J:
+
+    #Quitar el atributo conquistador. Lo ganará si conquista un país
+
+    a.desconquistar()
+    a.futuro(None)
 
     ##FASE DE CANJE
 
@@ -144,21 +148,100 @@ for a in J:
 
     ##FASE DE ATAQUE
 
-    posibles = a.territorios.copy()
-    shuffle(posibles)
+    # Falta implementar que el ataque sea opcional
 
-    ofensiva = False
+    # El jugador revisa entre todos sus posibles países. Si pueden
+    # atacar, estos revisan entre los limítrofes que pertenezcan a otro
+    # país y entonces realizan el ataque. El jugador solo realiza un
+    # ataque por turno
 
-    for b in posibles:
-        if b.ejercitos > 1 and not ofensiva:
-            lims = b.limitrofes.copy()
-            shuffle(lims)
-            for c in lims:
-                d = [i for i in paises if i.nombre == c][0]
-                if d.jugador != a:
-                    a.atacar(b, d)
-                    ofensiva = True
-                    break
+    # Quizás implementar sistema aleatorio de cuántos ataques realizar
+    # y que ciertos países sean más probables que otros como atacantes
+
+    # Quizás implemente que todos los chequeos de si un ataque es válido
+    # en el método del jugador
+
+    for n in range(rn.randint(0, 2)):
+        # print('antes')
+        # print([(i,i.ejercitos) for i in a.territorios])
+        posibles = a.mis_paises()
+        rn.shuffle(posibles)
+        ofensiva = False
+        for b in posibles:
+            if b.ejercitos > 1 and not ofensiva:
+                lims = b.limitrofes.copy()
+                rn.shuffle(lims)
+                for c in lims:
+                    d = [i for i in paises if i.nombre == c][0]
+                    jug = d.jugador
+                    # print([(i,i.ejercitos) for i in jug.territorios])
+                    if d.jugador != a:
+                        # print(f'pelean {b} y {d}')
+                        a.atacar(b, d)
+                        ofensiva = True
+                        break
+
+    """print('despues')
+    print([(i,i.ejercitos) for i in a.territorios])
+    print([(i,i.ejercitos) for i in jug.territorios])"""
+
+    ##FASE DE REAGRUPAMIENTO
+
+    posibles = [i for i in a.mis_paises() if i.ejercitos > 1]
+
+    # Implementar que el jugador tiende a mover ejércitos hacia
+    # limítrofes con otros jugadores. Su objetivo es que países
+    # rodeados de compañeros con más de un ejército mueve los ejércitos
+    # sobrantes hacia límites con otros jugadores
+
+    # Quizás implemente todos los chequeos de si un movimiento es válido
+    # en un método del jugador
+
+    """print("antes de movimiento")
+    print([(i, i.ejercitos) for i in a.territorios])"""
+
+    for b in range(rn.randint(0, 4)):
+        movimiento = rn.choice(posibles)
+        objetivo = [
+            i for i in paises if i.nombre in movimiento.limitrofes and i.jugador == a
+        ]
+        if not objetivo:
+            break
+        elif movimiento.ejercitos > 2:
+            # elobjetivo=rn.choice(objetivo)
+            # print(f'hubo movimiento de {movimiento} a {elobjetivo}')
+
+            # Quizás use numpy acá porque no tiene problemas si el número
+            # de ejércitos es 2. Me ahorro un condicional
+            movimiento.mover(
+                rn.randint(1, movimiento.ejercitos - 1), rn.choice(objetivo)
+            )
+        else:
+            # elobjetivo=rn.choice(objetivo)
+            # print(f'hubo movimiento de {movimiento} a {elobjetivo}')
+            movimiento.mover(1, rn.choice(objetivo))
+
+    """print('despues de movimiento')
+    print([(i,i.ejercitos) for i in a.territorios])"""
+
+    # Crear una función que agrupe países del jugador en grupos según si
+    # son limítrofes o no
+
+    ##FASE DE LLAMADO
+
+    # Chequear si jugador conquistó al menos un territorio para iniciar
+    # esta fase
+
+    if a.conquistador:
+        a.robar(1, mazo)
+        """print('antes')
+        print([(i,i.ejercitos) for i in a.territorios])"""
+        if a.cartas[-1] in a.territorios:
+            a.reclamar([a.cartas[-1]], 2)
+        else:
+            a.futuro(a.cartas[-1])
+        """print('despues')
+        print([(i,i.ejercitos) for i in a.territorios])"""
 
 # El turno consiste de cinco fases: Canje, Ataque, Reagrupamiento,
 # Llamado y Refuerzo, en este orden

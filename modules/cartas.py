@@ -74,3 +74,8 @@ class Mazo:
     def __iter__(self):
         for a in self.mazo:
             yield a
+
+    # Implemento getitem para poder llamar elementos del Mazo
+
+    def __getitem__(self, n: int):
+        return self.mazo[n]

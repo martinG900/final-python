@@ -1,13 +1,11 @@
 from modules.cartas import Mazo
-import numpy as np
+import random as rn
 
 
 class Jugador:
     """Clase que representa a un jugador. Tiene asociada el nombre del jugador,
     las cartas que el jugador posee, sus ejércitos y es capaz de realizar tiros de dados.
     La variable jugadores guarda a todos los jugadores creados"""
-
-    jugadores = []
 
     def __init__(self, nombre):
         self.nombre = nombre
@@ -24,13 +22,12 @@ class Jugador:
         # extra
         self.canje = 0
         # canje revisa el número de canjes realizado por el jugador
-        Jugador.jugadores.append(self)
 
-    def robar(self, n: int, mazo2):
+    def robar(self, n: int, mazo1):
         """Función que roba n cartas de un objeto Mazo y los añade a
         las cartas del jugador"""
 
-        mazo2.repartir(n=n, mazo=self.cartas)
+        mazo1.repartir(n=n, mazo=self.cartas)
 
     def soltar(self, mazo1, mazo2):
         """Función que suelta las cartas de un objeto Mazo, mazo1,
@@ -45,7 +42,7 @@ class Jugador:
         asociando los valores obtenidos al valor dado del objeto
         Jugador"""
 
-        self.dado = [np.int64(6 * np.random.rand() + 1) for i in range(n)]
+        self.dado = [rn.randint(1, 6) for i in range(n)]
 
     def reclamar(self, terrs: list, n: int):
         """Función a la que se le entrega una lista de objetos Pais y
@@ -68,10 +65,7 @@ class Jugador:
         # Hay que revisar que solo se reclaman países sin ejércitos
         # enemigos en él
 
-        [
-            self.reclamar([terrs[int(np.random.rand() * len(terrs))]], 1)
-            for a in range(m)
-        ]
+        [self.reclamar([rn.choice(terrs)], 1) for a in range(m)]
 
     def recuperar(self, n: int, pais):
         """Función que añade n ejércitos a la reserva del jugador,
@@ -111,6 +105,8 @@ class Jugador:
         """Función que elimina un país de los territorios del jugador"""
 
         self.territorios.remove(pais)
+
+    # Quizás le cambie el nombre a futuro porque es una porquería
 
     def futuro(self, pais):
         """Función que define si un jugador puede recibir tropas extra
@@ -162,6 +158,13 @@ class Jugador:
         determinadas por las reglas"""
 
         pais1.atacar(pais2)
+
+    def mis_paises(self):
+        """Función que devuelve una copia de la lista de países que
+        pertenencen a este jugador. Sirve para cuando tiene que elegir
+        qué hacer con alguno de sus países"""
+
+        return self.territorios.copy()
 
     def __repr__(self):
         return self.nombre

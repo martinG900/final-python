@@ -1,5 +1,5 @@
 import json
-import numpy as np
+import random as rn
 from pathlib import Path
 
 
@@ -51,7 +51,7 @@ class Pais:
         """Función que lanza n dados de seis caras y los asocia al valor
         de dado del país"""
 
-        self.dado = [np.int64(6 * np.random.rand() + 1) for i in range(n)]
+        self.dado = [rn.randint(1, 6) for i in range(n)]
 
         return self.dado
 
@@ -124,8 +124,10 @@ class Pais:
                 jd.recuperar(1, pais2)
                 if pais2.ejercitos == 0:
                     ja.invadir(pais2)
+                    if ja.por_conquistar!=None and ja.por_conquistar==pais2:
+                        ja.usar(2,pais2)
                     if self.ejercitos > 2:
-                        self.mover(int(2 * np.random.rand() + 1), pais2)
+                        self.mover(rn.randint(1, 2), pais2)
                     else:
                         self.mover(1, pais2)
 
