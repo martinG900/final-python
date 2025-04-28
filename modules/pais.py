@@ -72,6 +72,9 @@ class Pais:
         el país pertenezca a dicho jugador cambiando el valor jugador
         del país"""
 
+        if self.jugador != None:
+            self.jugador.perder(self)
+
         self.jugador = jugador
 
     def mover(self, n: int, pais2):
@@ -83,6 +86,12 @@ class Pais:
 
         self.retirar(n)
         pais2.reforzar(n)
+
+    def en_limite(self, pais):
+        """Función que revisa si un objeto Pais es limítrofe a este
+        país y devuelve un valor Booleano"""
+
+        return pais in self.limites
 
     def atacar(self, pais2):
         """Función en la que el país elige otro objeto Pais y lo ataca.

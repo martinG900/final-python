@@ -107,6 +107,11 @@ class Jugador:
         self.conquistar()
         pais.conquistado(self)
 
+    def perder(self, pais):
+        """Función que elimina un país de los territorios del jugador"""
+
+        self.territorios.remove(pais)
+
     def futuro(self, pais):
         """Función que define si un jugador puede recibir tropas extra
         si conquista un país en el siguiente turno. Coloca un objeto

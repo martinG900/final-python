@@ -144,30 +144,21 @@ for a in J:
 
     ##FASE DE ATAQUE
 
-    posibles=a.territorios.copy()
+    posibles = a.territorios.copy()
     shuffle(posibles)
 
-    print('antes del ataque')
-    print([(i,i.ejercitos) for i in a.territorios])
-
-    ataco=False
+    ofensiva = False
 
     for b in posibles:
-        if b.ejercitos>1 and not ataco:
-            for c in b.limitrofes:
-                d=[i for i in paises if i.nombre==c][0]
-                if d.jugador!=a:
-                    print([(i,i.ejercitos) for i in d.jugador.territorios])
-                    print(f'hay ataque entre {b} y {d}')
-                    a.atacar(b,d)
-                    ataco=True
+        if b.ejercitos > 1 and not ofensiva:
+            lims = b.limitrofes.copy()
+            shuffle(lims)
+            for c in lims:
+                d = [i for i in paises if i.nombre == c][0]
+                if d.jugador != a:
+                    a.atacar(b, d)
+                    ofensiva = True
                     break
-
-    print('despues del ataque')
-    print([(i,i.ejercitos) for i in a.territorios])
-
-
-
 
 # El turno consiste de cinco fases: Canje, Ataque, Reagrupamiento,
 # Llamado y Refuerzo, en este orden
