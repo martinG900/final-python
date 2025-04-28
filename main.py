@@ -65,6 +65,8 @@ paises = [Pais(i) for i in mazo1]
 mazo = Mazo(paises)
 mazo.mezclar()
 
+descarte = Mazo([])
+
 # Crear jugadores
 
 numJ = 4
@@ -98,7 +100,7 @@ else:
 # ¡ES PROBABLE QUE CAMBIE EL MÉTODO soltar SIMPLEMENTE POR LLAMAR A LAS
 # CARTAS DEL JUGADOR!
 
-[j.soltar(j.cartas,mazo) for j in J]
+[j.soltar(j.cartas, mazo) for j in J]
 
 mazo.mezclar()
 
@@ -111,10 +113,37 @@ mazo.mezclar()
 
 [i.reclamos(3, [j for j in i.territorios]) for i in J]
 
-## TURNOS DE JUGADORES
+### TURNOS DE JUGADORES
 
-# El turno consiste de cuatro fases: Ataque, Reagrupamiento, Llamado y
-# Refuerzo, en este orden
+## Reiniciando atributos de jugadores relevantes y atributos del mazo
+
+# Reiniciar el atributo conquistador del Jugador, que volverá a ser
+# obtenido si conquista un país esta ronda
+
+[i.desconquistar() for i in J]
+
+# Si el mazo se queda sin cartas, se usa las cartas descartadas
+# para rellenar el mazo
+
+if len(mazo) == 0:
+    descarte.repartir(nombres=descarte, mazo=mazo)
+mazo.mezclar()
+
+# Determinar orden en el que juegan los jugadores
+
+J_turnos = J.copy()
+shuffle(J_turnos)
+
+##FASE DE CANJE
+
+for a in J_turnos:
+    a.canjear(descarte)
+
+##FASE DE ATAQUE
+
+
+# El turno consiste de cinco fases: Canje, Ataque, Reagrupamiento,
+# Llamado y Refuerzo, en este orden
 
 # Las acciones que pueden ocurrir durante cada fase son: Atacar,
 # Reclamar, Perder, Mover, Solicitar y Robar

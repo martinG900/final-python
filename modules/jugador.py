@@ -93,6 +93,11 @@ class Jugador:
 
         self.conquistador = True
 
+    def desconquistar(self):
+        """Función que define el atributo de conquistador en False"""
+
+        self.conquistador = False
+
     def invadir(self, pais):
         """Función a la que se le entrega un objeto Pais. El jugador lo
         reclama, añadiéndolo a su lista de territorios. También cambia
@@ -109,13 +114,10 @@ class Jugador:
 
         self.por_conquistar = pais
 
-    def canjear(self, mazo):
+    def canjear(self, descarte):
         """Función que hace que el jugador realice un canje. Sube el
-        atributo de canje en uno. Para saber qué cartas le pertenecen,
-        se le entrega un objeto Mazo, que es una lista de objetos Pais,
-        y revisa cuál de estos países le pertenece"""
-
-        # Revisar si el canje es posible
+        atributo de canje en uno. Se le entrega un objeto Mazo, es el
+        mazo al cual envía las cartas que canjea"""
 
         propias = self.cartas.copiar()
         propiasSimbolos = [i.simbolo for i in propias]
@@ -125,19 +127,19 @@ class Jugador:
         canjeo = False
 
         for a in simbolosList:
-            descarte = [i for i in propias if i.simbolo == a]
+            descartadas = [i for i in propias if i.simbolo == a]
             if propiasSimbolos.count(a) >= 3:
-                descarte[:3]
+                descartadas[:3]
                 canjeo = True
                 break
             elif propiasSimbolos.count(a) + propiasSimbolos.count("comodín") >= 3:
-                descarte = descarte + [i for i in propias if i.simbolo == "comodín"]
+                descartadas = descartadas + [i for i in propias if i.simbolo == "comodín"]
                 canjeo = True
                 break
 
         if canjeo:
             self.canje += 1
-            self.soltar(Mazo(descarte), mazo)
+            self.soltar(Mazo(descartadas), descarte)
             if self.canje == 1:
                 self.reclamos(4, terrs)
             elif self.canje == 2:
@@ -146,6 +148,14 @@ class Jugador:
                 self.reclamos(10, terrs)
             else:
                 self.reclamos(10 + 5 * (self.canje - 3), terrs)
+    
+    def atacar(self,pais1,pais2):
+        '''Función que hace que el jugador realice un ataque. Elige un
+        objeto Pais propio y el objeto Pais al cual va a atacar. El
+        ataque solo es posible si ambos países cumplen las condiciones
+        determinadas por las reglas'''
+
+        pais1.atacar(pais2)
 
     def __repr__(self):
         return self.nombre
