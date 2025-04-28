@@ -1,2 +1,2 @@
 # final-python
-Simulación de una ronda del juego de mesa TEG.
+Simulación de una partida del juego de mesa TEG.
