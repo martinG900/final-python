@@ -78,8 +78,12 @@ class Jugador:
         """Función que retira n ejércitos de la reserva del jugador y
         los coloca en un objeto Pais"""
 
-        self.ejercitos -= n
-        pais.reforzar(n)
+        if self.ejercitos - n < 0:
+            pais.reforzar(self.ejercitos)
+            self.ejercitos = 0
+        else:
+            self.ejercitos -= n
+            pais.reforzar(n)
 
     def conquistar(self):
         """Función que define el atributo de conquistador en True. Se

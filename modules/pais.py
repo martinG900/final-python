@@ -124,8 +124,8 @@ class Pais:
                 jd.recuperar(1, pais2)
                 if pais2.ejercitos == 0:
                     ja.invadir(pais2)
-                    if ja.por_conquistar!=None and ja.por_conquistar==pais2:
-                        ja.usar(2,pais2)
+                    if ja.por_conquistar != None and ja.por_conquistar == pais2:
+                        ja.usar(2, pais2)
                     if self.ejercitos > 2:
                         self.mover(rn.randint(1, 2), pais2)
                     else:

@@ -68,7 +68,7 @@ descarte = Mazo([])
 
 # Crear jugadores
 
-numJ = 4
+numJ = 3
 
 J = [Jugador(f"José {i+1}") for i in range(numJ)]
 
@@ -140,7 +140,8 @@ victoria = False
 while not victoria:
 
     print("inicia ronda")
-    print([i.territorios for i in J])
+    # print([i.territorios for i in J])
+    print([i.jugador for i in paises])
 
     for a in J:
 
@@ -172,7 +173,11 @@ while not victoria:
         # Quizás implemente que todos los chequeos de si un ataque es válido
         # en el método del jugador
 
-        for n in range(rn.randint(2, 6)):
+        # Noté que en ataques aleatorios, los ejércitos tienden a
+        # acumularse todos en unos pocos países. Esto evita que haya
+        # expansión de territorios
+
+        for n in range(rn.randint(2,6)):
             # print('antes')
             # print([(i,i.ejercitos) for i in a.territorios])
             posibles = a.mis_paises()
