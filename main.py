@@ -1,337 +1,175 @@
 import json
-from pathlib import Path
 import random as rn
-from PIL import Image
-from matplotlib import pyplot as plt
-from matplotlib.patches import Circle
+from pathlib import Path
 from modules.cartas import Mazo
 from modules.jugador import Jugador
 from modules.pais import Pais
-
-# Funciones
-
-
-def tiros(m: int, participantes):
-    """Función a la que se le pasa una lista de objetos Jugador. Hace
-    que todos estos jugadores lancen un dado y compara sus resultados.
-    Indica quienes son los m jugadores con los mayores resultados. La
-    función tiene en cuenta los empates"""
-
-    ganadores = []
-    jugs = participantes.copy()
-
-    while True:
-
-        # Todos los jugadores de la lista tiran dados
-
-        for a in jugs:
-            a.lanzar(1)
-
-        # Los jugadores se ordenan según sus dados en orden descendente
-
-        jugs.sort(key=lambda x: x.dado[0], reverse=True)
-        valores = [i.dado[0] for i in jugs]
-
-        resultados = list({6, 5, 4, 3, 2, 1} & set(valores))
-        resultados.sort(reverse=True)
-
-        # Se chequean quienes califican para ganar y se repiten los tiros para
-        # los que empataron
-
-        for a in resultados:
-            if valores.count(a) == m - len(ganadores):
-                ganadores.extend(jugs[: valores.count(a)])
-                return ganadores
-            elif valores.count(a) > m - len(ganadores):
-                jugs = jugs[: valores.count(a)].copy()
-                break
-            else:
-                ganadores.extend(jugs[: valores.count(a)])
-                jugs = jugs[valores.count(a) :]
+from modules.dibujar import dibujar
 
 
-def dibujar(paises):
-    """
-    Dibuja un círculo de color `color` en el país `country_name` con el número `number` dentro.
-    country_name: str
-        Nombre del país donde se dibuja el círculo.
-    number: int
-        Número que se dibuja dentro del círculo, que representa el número de ejércitos.
-    color: str
-        Color del círculo. Por defecto es rojo.
-    """
-
-    # Crea una figura
-    fig, ax = plt.subplots(figsize=(10, 8))
-
-    # Muestra la imagen
-    ax.imshow(Image.open("data/teg.jpg"))
-
-    for a in paises:
-
-        # Obtiene las coordenadas del país
-        x, y = coordenadas[a.nombre]
-
-        radio = 20
-        # Dibuja el círculo
-        circulo = Circle(
-            (x, y),
-            radius=radio,
-            edgecolor="black",
-            facecolor=a.jugador.color,
-            linewidth=1,
-            alpha=0.8,
-        )
-        ax.add_patch(circulo)
-
-        # Agrega el número dentro del círculo
-        ax.text(x, y, str(a.ejercitos), color="black", fontsize=12, ha="center", va="center")
-
-        # Remueve los ejes
-        ax.axis("off")
-
-
-# Carga las coordenadas de los países
+### DATOS
 with open("data/country_coordinates.json", "r", encoding="utf-8") as f:
     coordenadas = json.load(f)
-
-## INICIALIZACIÓN
-
-# Abrir las cartas. Se considera al 0 de la lista como el tope del mazo
 
 with open(Path(".") / "data" / "cartas.json", "r", encoding="utf-8") as f:
     cartas = json.load(f)
 
-# Se crean los objetos Pais por cada país en el mazo de cartas. Luego se
-# crea un objeto Mazo donde cada carta es un objeto pais
+# Colores que pueden tomar los jugadores
+colores = ["cyan", "orange", "green", "red", "white", "pink"]
 
-mazo1 = []
-[mazo1.extend(i) for i in cartas.values()]
-paises = [Pais(i) for i in mazo1]
+# Nombres que pueden tomar los jugadores
+nombres = ["Pablo", "Yanina", "Tomás", "Horacio", "Omar", "Nahuel"]
+rn.shuffle(nombres)
 
+
+### INICIALIZACIÓN
+
+nombres_paises = []
+[nombres_paises.extend(i) for i in cartas.values()]
+
+# Crear lista de objetos Pais con todos los países del juego
+paises = [Pais(i) for i in nombres_paises]
+
+# Crear objeto Mazo cuyas cartas son objetos Pais
 mazo = Mazo(paises)
 mazo.mezclar()
 
+# Crear Mazo de descarte
 descarte = Mazo([])
 
-# Crear jugadores
+numero_jugadores = 4
 
-colores = ["cyan", "orange", "green", "red", "white", "pink"]
+# Lista de objetos Jugador
+jugadores = [Jugador(i, j) for i, j in list(zip(nombres, colores))[:numero_jugadores]]
 
-numJ = 4
-
-J = [Jugador(f"José {i+1}", j) for i, j in enumerate(colores[:numJ])]
-
-# Removí el atributo territorios de los jugadores. Consideré redundante
-# que los objetos Pais tengan asociado on jugador y que a la vez los
-# jugadores tengan una lista de países
-
-# Repartir paí­ses por jugador. Recordar que pueden sobrar dos cartas si jugadores=3,4,6
-
-if len(mazo) % numJ == 0:
-    mano = len(mazo) // numJ
-    [i.robar(mano, mazo) for i in J]
+# Repartir cartas a todos los jugadores
+if len(mazo) % numero_jugadores == 0:
+    numero_cartas = len(mazo) // numero_jugadores
+    [i.robar(numero_cartas, mazo) for i in jugadores]
 else:
-    mano = (len(mazo) - 2) // numJ
-    [i.robar(mano, mazo) for i in J]
+    numero_cartas = (len(mazo) - 2) // numero_jugadores
+    [i.robar(numero_cartas, mazo) for i in jugadores]
+    # Sobran dos cartas y jugadores compiten por estas
+    [i.robar(1, mazo) for i in Jugador.tiros(2, jugadores)]
 
-    # Introducir el tiro de dados y las dos cartas extra
-
-    [i.robar(1, mazo) for i in tiros(2, J)]
-
-# Cada jugador añade 1 ejército a sus países. Los países de un jugador
-# son objetos Pais
-
-[i.reclamar(i.cartas, 1) for i in J]
-
-# Quitar las cartas de las manos de los jugadores y resetear el mazo de cartas
-
-# ¡ES PROBABLE QUE CAMBIE EL MÉTODO soltar SIMPLEMENTE POR LLAMAR A LAS
-# CARTAS DEL JUGADOR!
-
-[i.soltar(i.cartas, mazo) for i in J]
+# Jugadores adquieren países y coloocan un ejército en cada uno
+[i.desplegar(i.cartas, 1) for i in jugadores]
+# Jugadores devuelven sus cartas al mazo
+[i.soltar(i.cartas, mazo) for i in jugadores]
 
 mazo.mezclar()
 
-# Cada jugador añade 5 ejércitos repartidos entre sus paí­ses. Pueden
-# reclamar la misma región más de una vez
+# Jugadores despliegan ejércitos en sus países
+[i.despliegues(5, [j for j in i.territorios]) for i in jugadores]
+[i.despliegues(3, [j for j in i.territorios]) for i in jugadores]
 
-[i.reclamos(5, [j for j in i.territorios]) for i in J]
+# Orden en el que juegan jugadores
+rn.shuffle(jugadores)
 
-# Cada jugador añade 3 ejércitos repartidos entre sus paí­ses
+# Estado inicial del mapa
+dibujar(paises, coordenadas)
 
-[i.reclamos(3, [j for j in i.territorios]) for i in J]
 
-### TURNOS DE JUGADORES
-
-## Reiniciando atributos de jugadores relevantes y atributos del mazo
-
-# Reiniciar el atributo conquistador del Jugador, que volverá a ser
-# obtenido si conquista un país esta ronda
-
-[i.desconquistar() for i in J]
-
-# Si el mazo se queda sin cartas, se usa las cartas descartadas
-# para rellenar el mazo
-
-if len(mazo) == 0:
-    descarte.repartir(nombres=descarte, mazo=mazo)
-
-mazo.mezclar()
-
-# Determinar orden en el que juegan los jugadores
-
-rn.shuffle(J)
-
-dibujar(paises)
-plt.show()
-
-###TURNOS DE JUGADORES
+### BUCLE DE JUEGO
 
 victoria = False
 
-for m in range(100):
+for m in range(100):  # O sino "while not victoria:"
 
-    print("inicia ronda")
-    print([i.territorios for i in J])
-    # print([i.jugador for i in paises])
-
-    for a in J:
-
-        if len(a.territorios) <= 0:
-            print(f"{a} ya no juega")
+    # Flujo para cada jugador
+    for j in jugadores:
+        # Revisar si jugador perdió y saltearlo
+        if len(j.territorios) <= 0:
             continue
-
-        # Quitar el atributo conquistador. Lo ganará si conquista un país
-
-        a.desconquistar()
-        a.futuro(None)
 
         ##FASE DE CANJE
 
-        a.canjear(descarte)
+        j.canjear(descarte)
 
         ##FASE DE ATAQUE
 
-        # Falta implementar que el ataque sea opcional
-
-        # El jugador revisa entre todos sus posibles países. Si pueden
-        # atacar, estos revisan entre los limítrofes que pertenezcan a otro
-        # país y entonces realizan el ataque. El jugador solo realiza un
-        # ataque por turno
-
-        # Quizás implementar sistema aleatorio de cuántos ataques realizar
-        # y que ciertos países sean más probables que otros como atacantes
-
-        # Quizás implemente que todos los chequeos de si un ataque es válido
-        # en el método del jugador
-
-        # Noté que en ataques aleatorios, los ejércitos tienden a
-        # acumularse todos en unos pocos países. Esto evita que haya
-        # expansión de territorios
-
+        # Realizar ataques un número aleatorio de veces
         for n in range(rn.randint(2, 6)):
-            # print('antes')
-            # print([(i,i.ejercitos) for i in a.territorios])
-            posibles = a.mis_paises()
-            rn.shuffle(posibles)
-            ofensiva = False
-            for b in posibles:
-                if b.ejercitos > 1 and not ofensiva:
-                    lims = b.limitrofes.copy()
-                    rn.shuffle(lims)
-                    for c in lims:
-                        d = [i for i in paises if i.nombre == c][0]
-                        jug = d.jugador
-                        # print([(i,i.ejercitos) for i in jug.territorios])
-                        if d.jugador != a:
-                            # print(f'pelean {b} y {d}')
-                            a.atacar(b, d)
-                            ofensiva = True
+            paises_atacantes = j.mis_paises()
+            rn.shuffle(paises_atacantes)
+            # Valor que revisa si se ganó un ataque, en cuyo caso
+            # reinicia el bucle
+            ataque_realizado = False
+            for atacante in paises_atacantes:
+                # Revisa si ataque es posible
+                if atacante.ejercitos > 1 and not ataque_realizado:
+                    # Define a los posibles objetivos del ataque
+                    paises_limitrofes = atacante.limitrofes.copy()
+                    rn.shuffle(paises_limitrofes)
+                    for limitrofe in paises_limitrofes:
+                        defensor = [i for i in paises if i.nombre == limitrofe][0]
+                        # Revisa si el país elegido es de otro jugador
+                        if defensor.jugador != j:
+                            j.atacar(atacante, defensor)
+                            ataque_realizado = True
                             break
 
-        if len(a.territorios) >= 40:
-            victoria = True
-            ganador = a
+        # Terminada la fase de ataque, el juguador pierde el país que
+        # tenía como objetivo conquistar, dado por la carta robada en
+        # la fase de Llamado
+        j.objetivo(None)
 
-        """print('despues')
-        print([(i,i.ejercitos) for i in a.territorios])
-        print([(i,i.ejercitos) for i in jug.territorios])"""
+        # Revisa condición de victoria
+        if len(j.territorios) >= 40:
+            victoria = True
+            ganador = j
 
         ##FASE DE REAGRUPAMIENTO
 
-        posibles = [i for i in a.mis_paises() if i.ejercitos > 1]
+        # Elegir posibles países que pueden desplegar tropas
+        paises_movimiento = [i for i in j.mis_paises() if i.ejercitos > 1]
 
-        # Implementar que el jugador tiende a mover ejércitos hacia
-        # limítrofes con otros jugadores. Su objetivo es que países
-        # rodeados de compañeros con más de un ejército mueve los ejércitos
-        # sobrantes hacia límites con otros jugadores
-
-        # Quizás implemente todos los chequeos de si un movimiento es válido
-        # en un método del jugador
-
-        """print("antes de movimiento")
-        print([(i, i.ejercitos) for i in a.territorios])"""
-
-        if posibles:
-            for b in range(rn.randint(0, 4)):
-                movimiento = rn.choice(posibles)
-                objetivo = [
+        if paises_movimiento:
+            # Bucle de cuántos movimientos hará el jugador
+            for m in range(rn.randint(2, 5)):
+                pais_origen = rn.choice(paises_movimiento)
+                # Solo movimientos a países propios
+                paises_destino = [
                     i
                     for i in paises
-                    if i.nombre in movimiento.limitrofes and i.jugador == a
+                    if i.nombre in pais_origen.limitrofes and i.jugador == j
                 ]
-                if not objetivo:
+                if not paises_destino:
                     break
-                elif movimiento.ejercitos > 2:
-                    # elobjetivo=rn.choice(objetivo)
-                    # print(f'hubo movimiento de {movimiento} a {elobjetivo}')
-
-                    # Quizás use numpy acá porque no tiene problemas si el número
-                    # de ejércitos es 2. Me ahorro un condicional
-                    movimiento.mover(
-                        rn.randint(1, movimiento.ejercitos - 1), rn.choice(objetivo)
-                    )
                 else:
-                    # elobjetivo=rn.choice(objetivo)
-                    # print(f'hubo movimiento de {movimiento} a {elobjetivo}')
-                    movimiento.mover(1, rn.choice(objetivo))
-
-        """print('despues de movimiento')
-        print([(i,i.ejercitos) for i in a.territorios])"""
-
-        # Crear una función que agrupe países del jugador en grupos según si
-        # son limítrofes o no
+                    # Jugador mueve un número aleatorio de tropas
+                    pais_origen.mover(
+                        rn.randint(0, pais_origen.ejercitos - 1),
+                        rn.choice(paises_destino),
+                    )
 
         ##FASE DE LLAMADO
 
-        # Chequear si jugador conquistó al menos un territorio para iniciar
-        # esta fase
-
-        if a.conquistador:
-            a.robar(1, mazo)
-            """print('antes')
-            print([(i,i.ejercitos) for i in a.territorios])"""
-            if a.cartas[-1] in a.territorios:
-                a.reclamar([a.cartas[-1]], 2)
+        # Fase solo ocurre si jugador conquistó al menos un país en este
+        # turno
+        if j.conquistador:
+            # Jugador reinicia sus conquistas. Tiene que volver a
+            # conquistar en el siguiente turno para entrar a esta fase
+            j.sin_conquistas()
+            j.robar(1, mazo)
+            # Si carta es de país propio, lo refuerza. Si no, jugador
+            # tiene un país objetivo para el siguiente turno
+            if j.cartas[-1] in j.territorios:
+                j.desplegar([j.cartas[-1]], 2)
             else:
-                a.futuro(a.cartas[-1])
-            """print('despues')
-            print([(i,i.ejercitos) for i in a.territorios])"""
+                j.objetivo(j.cartas[-1])
 
+        # Si cartas del mazo se acaban, usar el descarte para rellenarlo
         if len(mazo) == 0:
             descarte.repartir(n=len(descarte), mazo=mazo)
 
         ##FASE DE REFUERZO
 
-        refuerzos = len(a.territorios) // 2
+        refuerzos = len(j.territorios) // 2
 
+        # Jugador distribuye refuerzos entre sus países
         for n in range(refuerzos):
-            a.usar(1, rn.choice(a.territorios))
+            j.usar_reservas(1, rn.choice(j.territorios))
 
-
-dibujar(paises)
-plt.show()
-
-"""print(ganador)
-print([i.territorios for i in J])"""
+# Mostrar mapa final de la partida
+dibujar(paises, coordenadas)

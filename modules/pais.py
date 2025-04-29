@@ -35,9 +35,6 @@ class Pais:
         self.ejercitos = 0
         self.dado = []
 
-        # PREGUNTAR POR RECURRENCIA Y COMO AÑADIR LIMÍTROFES SIN ELLA
-        Pais.paises.append(self)
-
         # Hice que los limítrofes ya no sean objetos Pais. Solo
         # strings
 
@@ -125,7 +122,7 @@ class Pais:
                 if pais2.ejercitos == 0:
                     ja.invadir(pais2)
                     if ja.por_conquistar != None and ja.por_conquistar == pais2:
-                        ja.usar(2, pais2)
+                        ja.usar_reservas(2, pais2)
                     if self.ejercitos > 2:
                         self.mover(rn.randint(1, 2), pais2)
                     else:

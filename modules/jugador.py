@@ -38,14 +38,14 @@ class Jugador:
 
         self.cartas.repartir(nombres=mazo1, mazo=mazo2)
 
-    def lanzar(self, n: int):
+    def lanzar_dado(self, n: int):
         """Función que hace que el jugador lance n dados de seis caras,
         asociando los valores obtenidos al valor dado del objeto
         Jugador"""
 
         self.dado = [rn.randint(1, 6) for i in range(n)]
 
-    def reclamar(self, terrs: list, n: int):
+    def desplegar(self, terrs: list, n: int):
         """Función a la que se le entrega una lista de objetos Pais y
         los añade a la lista de territorios del jugador. Reclamar un
         país implica colocar n ejércitos en este, por lo que se reduce
@@ -56,9 +56,9 @@ class Jugador:
         for a in terrs:
             if a not in self.territorios:
                 self.invadir(a)
-            self.usar(n, a)
+            self.usar_reservas(n, a)
 
-    def reclamos(self, m: int, terrs: list):
+    def despliegues(self, m: int, terrs: list):
         """Función que realiza el método reclamar un número m veces,
         en cada iteración reclamando un territorio elegido eleatoriamente
         entre los territorios proveídos como una lista de objetos Pais"""
@@ -66,7 +66,7 @@ class Jugador:
         # Hay que revisar que solo se reclaman países sin ejércitos
         # enemigos en él
 
-        [self.reclamar([rn.choice(terrs)], 1) for a in range(m)]
+        [self.desplegar([rn.choice(terrs)], 1) for a in range(m)]
 
     def recuperar(self, n: int, pais):
         """Función que añade n ejércitos a la reserva del jugador,
@@ -75,7 +75,7 @@ class Jugador:
         self.ejercitos += n
         pais.retirar(n)
 
-    def usar(self, n: int, pais):
+    def usar_reservas(self, n: int, pais):
         """Función que retira n ejércitos de la reserva del jugador y
         los coloca en un objeto Pais"""
 
@@ -92,7 +92,7 @@ class Jugador:
 
         self.conquistador = True
 
-    def desconquistar(self):
+    def sin_conquistas(self):
         """Función que define el atributo de conquistador en False"""
 
         self.conquistador = False
@@ -111,9 +111,7 @@ class Jugador:
 
         self.territorios.remove(pais)
 
-    # Quizás le cambie el nombre a futuro porque es una porquería
-
-    def futuro(self, pais):
+    def objetivo(self, pais):
         """Función que define si un jugador puede recibir tropas extra
         si conquista un país en el siguiente turno. Coloca un objeto
         Pais al atributo por_conquistar"""
@@ -148,13 +146,13 @@ class Jugador:
             self.canje += 1
             self.soltar(Mazo(descartadas), descarte)
             if self.canje == 1:
-                self.reclamos(4, terrs)
+                self.despliegues(4, terrs)
             elif self.canje == 2:
-                self.reclamos(7, terrs)
+                self.despliegues(7, terrs)
             elif self.canje == 3:
-                self.reclamos(10, terrs)
+                self.despliegues(10, terrs)
             else:
-                self.reclamos(10 + 5 * (self.canje - 3), terrs)
+                self.despliegues(10 + 5 * (self.canje - 3), terrs)
 
     def atacar(self, pais1, pais2):
         """Función que hace que el jugador realice un ataque. Elige un
@@ -181,3 +179,53 @@ class Jugador:
         if isinstance(jug, Jugador):
             return self.nombre == jug.nombre
         return False
+
+    @classmethod
+    def tiros(cls, m: int, participantes: list):
+        """Función a la que se le pasa una lista de objetos Jugador. Hace
+        que todos estos jugadores lancen un dado y compara sus resultados.
+        Indica quienes son los m jugadores con los mayores resultados. La
+        función tiene en cuenta los empates"""
+
+        ganadores = []
+        jugs = participantes.copy()
+
+        while True:
+
+            # Todos los jugadores de la lista tiran dados
+
+            [i.lanzar_dado(1) for i in jugs]
+
+            # Los jugadores se ordenan según sus dados en orden descendente
+
+            jugs.sort(key=lambda x: x.dado[0], reverse=True)
+            valores = [i.dado[0] for i in jugs]
+
+            # Se hace una lista con los números obtenidos entre todos
+            # los tiros
+
+            resultados = list({6, 5, 4, 3, 2, 1} & set(valores))
+            resultados.sort(reverse=True)
+
+            # Se chequean quienes califican para ganar y se repiten los tiros para
+            # los que empataron
+
+            # Se revisan todos los nuúmeros sacados en los tiros y se
+            # cuentan cuántos ganaron en orden descendente
+            for a in resultados:
+                if valores.count(a) == m - len(ganadores):
+                    # Se obtuvo el número justo de ganadores. Se termina
+                    # la función
+                    ganadores.extend(jugs[: valores.count(a)])
+                    return ganadores
+                elif valores.count(a) > m - len(ganadores):
+                    # Hay muchos ganadores. Se termina el chequeo y se
+                    # repite el tiro entre estos ganadores excesivos
+                    jugs = jugs[: valores.count(a)].copy()
+                    break
+                else:
+                    # Hay menos ganadores de lo esperado. Estos salen de
+                    # los posibles contendientes. Se repiten los tiros
+                    # con los jugadores restantes
+                    ganadores.extend(jugs[: valores.count(a)])
+                    jugs = jugs[valores.count(a) :]

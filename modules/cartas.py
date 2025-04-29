@@ -56,12 +56,6 @@ class Mazo:
 
         self.original = self.mazo.copy()
 
-    def juntar(self):
-        # VOY A ELIMINAR ESTA FUNCIÓN
-        """Función que devuelve el mazo a su cantidad original, con las cartas sin mezclar"""
-
-        self.mazo = self.original
-
     def __repr__(self):
         return str(self.mazo)
 
