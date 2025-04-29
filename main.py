@@ -1,6 +1,9 @@
 import json
 from pathlib import Path
 import random as rn
+from PIL import Image
+from matplotlib import pyplot as plt
+from matplotlib.patches import Circle
 from modules.cartas import Mazo
 from modules.jugador import Jugador
 from modules.pais import Pais
@@ -47,6 +50,51 @@ def tiros(m: int, participantes):
                 jugs = jugs[valores.count(a) :]
 
 
+def dibujar(paises):
+    """
+    Dibuja un círculo de color `color` en el país `country_name` con el número `number` dentro.
+    country_name: str
+        Nombre del país donde se dibuja el círculo.
+    number: int
+        Número que se dibuja dentro del círculo, que representa el número de ejércitos.
+    color: str
+        Color del círculo. Por defecto es rojo.
+    """
+
+    # Crea una figura
+    fig, ax = plt.subplots(figsize=(10, 8))
+
+    # Muestra la imagen
+    ax.imshow(Image.open("data/teg.jpg"))
+
+    for a in paises:
+
+        # Obtiene las coordenadas del país
+        x, y = coordenadas[a.nombre]
+
+        radio = 20
+        # Dibuja el círculo
+        circulo = Circle(
+            (x, y),
+            radius=radio,
+            edgecolor="black",
+            facecolor=a.jugador.color,
+            linewidth=1,
+            alpha=0.8,
+        )
+        ax.add_patch(circulo)
+
+        # Agrega el número dentro del círculo
+        ax.text(x, y, str(a.ejercitos), color="black", fontsize=12, ha="center", va="center")
+
+        # Remueve los ejes
+        ax.axis("off")
+
+
+# Carga las coordenadas de los países
+with open("data/country_coordinates.json", "r", encoding="utf-8") as f:
+    coordenadas = json.load(f)
+
 ## INICIALIZACIÓN
 
 # Abrir las cartas. Se considera al 0 de la lista como el tope del mazo
@@ -68,9 +116,11 @@ descarte = Mazo([])
 
 # Crear jugadores
 
-numJ = 3
+colores = ["cyan", "orange", "green", "red", "white", "pink"]
 
-J = [Jugador(f"José {i+1}") for i in range(numJ)]
+numJ = 4
+
+J = [Jugador(f"José {i+1}", j) for i, j in enumerate(colores[:numJ])]
 
 # Removí el atributo territorios de los jugadores. Consideré redundante
 # que los objetos Pais tengan asociado on jugador y que a la vez los
@@ -87,19 +137,19 @@ else:
 
     # Introducir el tiro de dados y las dos cartas extra
 
-    [j.robar(1, mazo) for j in tiros(2, J)]
+    [i.robar(1, mazo) for i in tiros(2, J)]
 
 # Cada jugador añade 1 ejército a sus países. Los países de un jugador
 # son objetos Pais
 
-[j.reclamar(j.cartas, 1) for j in J]
+[i.reclamar(i.cartas, 1) for i in J]
 
 # Quitar las cartas de las manos de los jugadores y resetear el mazo de cartas
 
 # ¡ES PROBABLE QUE CAMBIE EL MÉTODO soltar SIMPLEMENTE POR LLAMAR A LAS
 # CARTAS DEL JUGADOR!
 
-[j.soltar(j.cartas, mazo) for j in J]
+[i.soltar(i.cartas, mazo) for i in J]
 
 mazo.mezclar()
 
@@ -133,15 +183,18 @@ mazo.mezclar()
 
 rn.shuffle(J)
 
+dibujar(paises)
+plt.show()
+
 ###TURNOS DE JUGADORES
 
 victoria = False
 
-while not victoria:
+for m in range(100):
 
     print("inicia ronda")
-    # print([i.territorios for i in J])
-    print([i.jugador for i in paises])
+    print([i.territorios for i in J])
+    # print([i.jugador for i in paises])
 
     for a in J:
 
@@ -177,7 +230,7 @@ while not victoria:
         # acumularse todos en unos pocos países. Esto evita que haya
         # expansión de territorios
 
-        for n in range(rn.randint(2,6)):
+        for n in range(rn.randint(2, 6)):
             # print('antes')
             # print([(i,i.ejercitos) for i in a.territorios])
             posibles = a.mis_paises()
@@ -276,84 +329,9 @@ while not victoria:
         for n in range(refuerzos):
             a.usar(1, rn.choice(a.territorios))
 
-print(ganador)
-print([i.territorios for i in J])
 
-# El turno consiste de cinco fases: Canje, Ataque, Reagrupamiento,
-# Llamado y Refuerzo, en este orden
+dibujar(paises)
+plt.show()
 
-# Las acciones que pueden ocurrir durante cada fase son: Atacar,
-# Reclamar, Perder, Mover, Solicitar y Robar
-
-# Atacar es una interacción entre dos Jugadores y entre un país de cada
-# uno. Incluye Tiros de dados y Mover ejércitos (Mover ejércitos es una
-# combinación de Reclamar y Perder territorios). Un jugador puede
-# atacar cuantas veces le sea posible
-
-# Una vez que un jugador entra a la fase de Reagrupamiento, ya no puede
-# volver a la fase de Ataque
-
-# Solicitar es una acción que incluye Robar una carta y aplicar un efecto
-
-# Todas las fases son OPCIONALES excepto Refuerzo y Llamado. Y Llamado
-# solo ocurre si se realizó la fase de Ataque y se Movió ejércitos
-# durante esta fase
-
-# En los movimientos, NUNCA puede dejarse un país sin ejércitos. Tampoco
-# puede moverse un ejército a un país enemigo
-
-##FASE DE CANJEO
-
-# Fase de incorporación de ejércitos en el que el jugador puede decidir
-# si quiere canjear las cartas que posee a cambio de incorporar ejércitos
-# a sus países
-
-# El canje solo puede realizarse si el jugador posee tres cartas con
-# símbolos todos iguales o todos diferentes. Los comodines actúan como
-# cualquier símbolo, aplicado a conveniencia
-
-# (USAR SETS PARA CHEQUEAR LOS CANJES)
-
-# El número de ejércitos que recibe depende del número de canje
-# realizado.
-
-# 1er canje: 4 ejércitos, 2do canje: 7 ejércitos, 3er canje: 10 ejércitos,
-# luego se cumple la relación 10+5(n-3) ejércitos, con n el número del
-# canje
-
-# El símbolo de una carta está asociado a un objeto Pais
-
-# Se añadió el atributo canje al objeto Jugador para hacer seguimiento
-# del número de canjes que realice durante la partida
-
-## FASE DE ATAQUE
-
-# Se consideró que un ataque ocurre entre dos países, no entre dos
-# jugadores. Esto simplifica las interacciones
-
-# Esta fase es opcional
-
-##FASE DE REAGRUPAMIENTO
-
-# El jugador Mueve sus tropas entre sus propios países que sean
-# limítrofes
-
-# Al entrar en esta fase, se da por terminada la fase de Ataque
-
-# El movimiento es realizado por los objetos País, no por un jugador
-
-# Pueden realizarse tantos movimientos válidos como se quiera
-
-##FASE DE LLAMADO
-
-# Ocurre si el jugador conquistó al menos un país. Se roba una carta del
-# mazo y puede haber despliegue de tropas o no. El atributo conquistador
-# del jugador chequea si se cumple esta condición
-
-# Si jugador roba carta de su propio país, agrega dos ejércitos en dicho
-# país. El jugador mantiene la carta
-
-# Si la carta no es de su propio país, pero el jugador lo conquista en
-# el turno posterior, añade dos ejércitos a dicho país al conquistarlo.
-# El atributo por_conquistar del jugador recibe este país y chequea si
-# fue conquistado a tiempo
+"""print(ganador)
+print([i.territorios for i in J])"""

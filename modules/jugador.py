@@ -7,9 +7,10 @@ class Jugador:
     las cartas que el jugador posee, sus ejércitos y es capaz de realizar tiros de dados.
     La variable jugadores guarda a todos los jugadores creados"""
 
-    def __init__(self, nombre):
+    def __init__(self, nombre: str, color: str = "orange"):
         self.nombre = nombre
         self.cartas = Mazo([])
+        self.color = color
         self.dado = []
         self.territorios = []
         self.ejercitos = 100
