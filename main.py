@@ -37,7 +37,7 @@ mazo.mezclar()
 # Crear Mazo de descarte
 descarte = Mazo([])
 
-numero_jugadores = 4
+numero_jugadores = 6
 
 # Lista de objetos Jugador
 jugadores = [Jugador(i, j) for i, j in list(zip(nombres, colores))[:numero_jugadores]]
@@ -53,9 +53,9 @@ else:
     [i.robar(1, mazo) for i in Jugador.tiros(2, jugadores)]
 
 # Jugadores adquieren países y coloocan un ejército en cada uno
-[i.desplegar(i.cartas, 1) for i in jugadores]
+[i.desplegar(1, i.cartas) for i in jugadores]
 # Jugadores devuelven sus cartas al mazo
-[i.soltar(i.cartas, mazo) for i in jugadores]
+[i.devolver(i.cartas, mazo) for i in jugadores]
 
 mazo.mezclar()
 
@@ -67,14 +67,13 @@ mazo.mezclar()
 rn.shuffle(jugadores)
 
 # Estado inicial del mapa
-dibujar(paises, coordenadas)
-
+# dibujar(paises, coordenadas)
 
 ### BUCLE DE JUEGO
 
 victoria = False
 
-for m in range(100):  # O sino "while not victoria:"
+for m in range(1000):  # O sino "while not victoria:"
 
     # Flujo para cada jugador
     for j in jugadores:
@@ -112,7 +111,7 @@ for m in range(100):  # O sino "while not victoria:"
         # Terminada la fase de ataque, el juguador pierde el país que
         # tenía como objetivo conquistar, dado por la carta robada en
         # la fase de Llamado
-        j.objetivo(None)
+        j.pais_objetivo(None)
 
         # Revisa condición de victoria
         if len(j.territorios) >= 40:
@@ -126,7 +125,8 @@ for m in range(100):  # O sino "while not victoria:"
 
         if paises_movimiento:
             # Bucle de cuántos movimientos hará el jugador
-            for m in range(rn.randint(2, 5)):
+            maximas_tropas = max([i.ejercitos for i in paises_movimiento])
+            for m in range(rn.randint(maximas_tropas // 2, maximas_tropas)):
                 pais_origen = rn.choice(paises_movimiento)
                 # Solo movimientos a países propios
                 paises_destino = [
@@ -155,9 +155,9 @@ for m in range(100):  # O sino "while not victoria:"
             # Si carta es de país propio, lo refuerza. Si no, jugador
             # tiene un país objetivo para el siguiente turno
             if j.cartas[-1] in j.territorios:
-                j.desplegar([j.cartas[-1]], 2)
+                j.desplegar(2, [j.cartas[-1]])
             else:
-                j.objetivo(j.cartas[-1])
+                j.pais_objetivo(j.cartas[-1])
 
         # Si cartas del mazo se acaban, usar el descarte para rellenarlo
         if len(mazo) == 0:
@@ -172,4 +172,4 @@ for m in range(100):  # O sino "while not victoria:"
             j.usar_reservas(1, rn.choice(j.territorios))
 
 # Mostrar mapa final de la partida
-dibujar(paises, coordenadas)
+# dibujar(paises, coordenadas)

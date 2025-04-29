@@ -4,18 +4,11 @@ from pathlib import Path
 
 
 class Pais:
-    """Clase que representa los países del juego. Tiene asociadas su
-    nombre, el número de ejércitos en él, los objetos Pais limítrofes
-    y el objeto Jugador que posee este país. El país también es capaz
-    de lanzar dados, algo útil durante la fase de ataque de un jugador"""
-
-    # Añadí un objeto Pais porque es más útil que los combates sean
-    # Pais contra Pais, y que estos objetos referencien cuántos
-    # ejército tienen y a qué jugador pertenencen, en lugar de que los
-    # combates sean jugador contra jugador
-
-    # El conteo de tarjetas se usa para añadir el símbolo que
-    # corresponde a cada país
+    """
+    Clase que representa a los países del juego. Contiene cuántos
+    ejércitos lo conforman, a qué jugador pertenece y qué países son
+    limíitrofes al mismo. Es capaz de realizar ataques y mover tropas.
+    """
 
     with open(Path() / "data" / "limites.json", encoding="utf-8") as f:
         limites = json.load(f)
@@ -23,120 +16,130 @@ class Pais:
     with open(Path(".") / "data" / "cartas.json", "r", encoding="utf-8") as f:
         tarjetas = json.load(f)
 
-    paises = []
-
     def __init__(self, nombre: str):
-
-        # PREGUNTAR CÓMO HACER QUE SI PAIS YA EXISTE, QUE AL CREARLO
-        # SIMPLEMENTE SE REFIERA AL QUE YA EXISTE
 
         self.nombre = nombre
         self.jugador = None
         self.ejercitos = 0
         self.dado = []
-
-        # Hice que los limítrofes ya no sean objetos Pais. Solo
-        # strings
-
         self.limitrofes = [i for i in Pais.limites[self.nombre]]
 
-        for a in Pais.tarjetas.keys():
-            if self.nombre in Pais.tarjetas[a]:
-                self.simbolo = a
+        for simbolo in Pais.tarjetas.keys():
+            if self.nombre in Pais.tarjetas[simbolo]:
+                self.simbolo = simbolo
 
-    def lanzar(self, n: int):
-        """Función que lanza n dados de seis caras y los asocia al valor
-        de dado del país"""
+    def lanzar_dados(self, n: int):
+        """
+        Lanza 'n' dados y guarda todos los resultados en una lista.
+        n: int
+            Número de dados a ser lanzados.
+        """
 
         self.dado = [rn.randint(1, 6) for i in range(n)]
 
         return self.dado
 
     def reforzar(self, n: int):
-        """Función que añade n ejércitos al objeto Pais y los retira
-        de la reserva del jugador asociado a este país"""
+        """
+        Añade 'n' ejércitos a las tropas en el país.
+        n: int
+            Número de tropas a añadir.
+        """
 
         self.ejercitos += n
 
     def retirar(self, n: int):
-        """Función que retira n ejércitos del objeto Pais y los devuelve
-        a la reserva del jugador que posee este país"""
+        """
+        Sustrae 'n' ejércitos de las tropas en el país.
+        n: int
+            Número de tropas a ser sustraídas.
+        """
 
         self.ejercitos -= n
 
-    def conquistado(self, jugador):
-        """Función a la que se le entrega un objeto Jugador y hace que
-        el país pertenezca a dicho jugador cambiando el valor jugador
-        del país"""
+    def conquistado(self, conquistador):
+        """
+        Conquista el país, sacándolo de entre los territorios del previo
+        dueño y añadiéndolo a la lista del nuevo jugador 'conquistador'.
+        conquistador: Jugador
+            Jugador que conquistó el país. Se adhiere al atributo
+            'jugador' del país y lo añade a su lista de territorios.
+        """
 
         if self.jugador != None:
-            self.jugador.perder(self)
+            self.jugador.perder_pais(self)
 
-        self.jugador = jugador
+        conquistador.conquistar()
+        conquistador.invadir(self)
+        self.jugador = conquistador
 
-    def mover(self, n: int, pais2):
-        """Función que mueve n ejércitos de este país a un objeto Pais
-        entregado en el argumento"""
-
-        # En esta función no se añade un chequeo de si pais2 es limítrofe
-        # porque se supone que solo se usa la función en países adecuados
+    def mover(self, n: int, pais_objetivo):
+        """
+        Refuerza el país 'pais_objetivo' entregándole 'n' tropas propias.
+        n: int
+            Número de tropas a mover.
+        pais_objetivo: Pais
+            País que recibe las tropas.
+        """
 
         self.retirar(n)
-        pais2.reforzar(n)
+        pais_objetivo.reforzar(n)
 
     def en_limite(self, pais):
-        """Función que revisa si un objeto Pais es limítrofe a este
-        país y devuelve un valor Booleano"""
+        """
+        Revisa si un 'pais' es limítrofe a este y devuelve un valor
+        Booleano.
+        pais: Pais
+            País que puede o no ser limítrofe.
+        """
 
-        return pais in self.limites
+        return pais in self.limitrofes
 
-    def atacar(self, pais2):
-        """Función en la que el país elige otro objeto Pais y lo ataca.
-        Las reglas del juego definen que pasa en caso de victorias,
-        derrotas o empates"""
+    def atacar(self, defensor):
+        """
+        Ataca al país 'defensor'.
+        defensor: Pais
+            País a ser atacado.
+        """
 
-        # Va a haber que añadir sistemas que revisen que el ataque sea
-        # válido
+        tropas_atacantes = self.ejercitos - 1
+        tropas_defensoras = defensor.ejercitos
+        jugador_atacante = self.jugador
+        jugador_defensor = defensor.jugador
 
-        na = self.ejercitos - 1
-        nd = pais2.ejercitos
-        ja = self.jugador
-        jd = pais2.jugador
+        if tropas_atacantes > 3:
+            tropas_atacantes = 3
+        if tropas_defensoras > 3:
+            tropas_defensoras = 3
 
-        if na > 3:
-            na = 3
-        if nd > 3:
-            nd = 3
+        dados_atacante = self.lanzar_dados(tropas_atacantes)
+        dados_defensor = defensor.lanzar_dados(tropas_defensoras)
 
-        da = self.lanzar(na)
-        dd = pais2.lanzar(nd)
+        dados_atacante.sort(reverse=True)
+        dados_defensor.sort(reverse=True)
 
-        da.sort(reverse=True)
-        dd.sort(reverse=True)
-
-        for m in range(min([len(da), len(dd)])):
-            if dd[m] >= da[m]:
-                ja.recuperar(1, self)
+        for dado in range(min([len(dados_atacante), len(dados_defensor)])):
+            if dados_defensor[dado] >= dados_atacante[dado]:
+                jugador_atacante.retirar_ejercitos(1, self)
             else:
-                jd.recuperar(1, pais2)
-                if pais2.ejercitos == 0:
-                    ja.invadir(pais2)
-                    if ja.por_conquistar != None and ja.por_conquistar == pais2:
-                        ja.usar_reservas(2, pais2)
+                jugador_defensor.retirar_ejercitos(1, defensor)
+                if defensor.ejercitos == 0:
+                    defensor.conquistado(jugador_atacante)
+                    if (
+                        jugador_atacante.por_conquistar != None
+                        and jugador_atacante.por_conquistar == defensor
+                    ):
+                        jugador_atacante.usar_reservas(2, defensor)
                     if self.ejercitos > 2:
-                        self.mover(rn.randint(1, 2), pais2)
+                        self.mover(rn.randint(1, 2), defensor)
                     else:
-                        self.mover(1, pais2)
+                        self.mover(1, defensor)
 
     def __repr__(self):
         return self.nombre
 
     def __str__(self):
         return self.nombre
-
-    # Añadí eq para que dos objetos Pais sean iguales si tienen el
-    # mismo nombre
-    # Añadí hash para poder comparar sets de países
 
     def __eq__(self, pais2):
         if isinstance(pais2, Pais):
