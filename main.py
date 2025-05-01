@@ -79,8 +79,7 @@ dibujar(paises, coordenadas)
 
 victoria = False
 
-#for m in range(1000):  # O sino "while not victoria:"
-while not victoria:
+for m in range(1000):  # O sino "while not victoria:"
 
     # Flujo para cada jugador
     for j in jugadores:
