@@ -29,7 +29,7 @@ class Jugador:
         baraja: Mazo
             Mazo del cual se roban las cartas.
         """
-        baraja.repartir(n=n, mazo=self.cartas)
+        baraja.repartir(n=n, recipiente=self.cartas)
 
     def devolver(self, cartas_propias, baraja):
         """
@@ -40,7 +40,7 @@ class Jugador:
         baraja: Mazo
             Mazo al que se le devuelven las cartas.
         """
-        self.cartas.repartir(nombres=cartas_propias, mazo=baraja)
+        self.cartas.repartir(cartas=cartas_propias, recipiente=baraja)
 
     def lanzar_dados(self, n: int):
         """
@@ -99,7 +99,7 @@ class Jugador:
         pais: Pais
             País al cual añadir los ejércitos.
         """
-
+        # Al país se le acabaron las reservas
         if self.reserva - n < 0:
             pais.reforzar(self.reserva)
             self.reserva = 0
@@ -111,14 +111,12 @@ class Jugador:
         """
         Define como 'True' el atributo 'conquistador' del jugador.
         """
-
         self.conquistador = True
 
     def sin_conquistas(self):
         """
         Define como 'False' el el atributo 'conquistador' del jugador.
         """
-
         self.conquistador = False
 
     def invadir(self, pais):
@@ -128,10 +126,7 @@ class Jugador:
         pais: Pais
             País a ser añadido.
         """
-
         self.territorios.append(pais)
-        # self.conquistar()
-        # pais.conquistado(self)
 
     def perder_pais(self, pais):
         """
@@ -139,7 +134,6 @@ class Jugador:
         pais: Pais
             País a ser removido.
         """
-
         self.territorios.remove(pais)
 
     def pais_objetivo(self, pais):
@@ -149,7 +143,6 @@ class Jugador:
         pais: Pais
             País a ser conquistado.
         """
-
         self.por_conquistar = pais
 
     def canjear(self, descarte):
@@ -160,18 +153,34 @@ class Jugador:
         descarte: mazo
             Mazo que recibe las cartas descartadas por el jugador.
         """
+        mis_cartas = self.cartas
 
-        mis_cartas = self.cartas.copiar()
+        # Símbolos en cartas del jugador
         mis_simbolos = [i.simbolo for i in mis_cartas]
+
+        # Lista de símbolos a chequear
         simbolos = ["galeón", "cañón", "globo"]
+
+        # Condición que determina si se cumple la condición para el
+        # canje
         ocurre_canjeo = False
 
+        # Iteramos por los tres símbolos posibles
         for simbolo in simbolos:
+
+            # Cartas del jugador con un símbolo específico
             cartas_canjeo = [i for i in mis_cartas if i.simbolo == simbolo]
+
+            # Más de tres cartas tienen el mismo símbolo
             if mis_simbolos.count(simbolo) >= 3:
                 cartas_canjeo[:3]
+
+                # Ir al canje
                 ocurre_canjeo = True
                 break
+
+            # El número de cartas con el mismo símbolo más el número de
+            # comodines es mayor o igual a tres
             elif mis_simbolos.count(simbolo) + mis_simbolos.count("comodín") >= 3:
                 cartas_canjeo = cartas_canjeo + [
                     i for i in mis_cartas if i.simbolo == "comodín"
@@ -179,9 +188,16 @@ class Jugador:
                 ocurre_canjeo = True
                 break
 
+        # Se efectúa el canje
         if ocurre_canjeo:
+            # Aumenta el número de canjeos realizado por el jugador
             self.canje += 1
+
+            # Devolver las cartas usadas para el canjeo
             self.devolver(Mazo(cartas_canjeo), descarte)
+
+            # Número de tropas recibidas según el número de canjeos
+            # realizados hasta el momento
             if self.canje == 1:
                 self.despliegues(4, self.territorios)
             elif self.canje == 2:
@@ -191,24 +207,62 @@ class Jugador:
             else:
                 self.despliegues(10 + 5 * (self.canje - 3), self.territorios)
 
-    def atacar(self, atacante, defensor):
+    def elegir_combatientes(self):
         """
-        Realiza un ataque entre el país atacante 'atacante' y el
-        defensor 'defensor'.
-        atacante: Pais
-            País atacante.
-        defensor: Pais
-            País defensor.
+        Elige un país propio como atacante y un país de otro jugador
+        como defensor atendiendo a las reglas de combate del juego.
+        Devuelve una tupla con el atacante y el defensor.
         """
 
-        atacante.atacar(defensor)
+        # Todos los países que pueden atacar
+        atacantes_posibles = [i for i in self.mis_paises() if i.ejercitos > 1]
+        rn.shuffle(atacantes_posibles)
+
+        for atacante in atacantes_posibles:
+
+            # Todos los limítrofes al atacante que no son propios
+            defensores = [i for i in atacante.limitrofes if i.jugador != self]
+
+            # Hay limítrofes que no son propios
+            if defensores:
+                return atacante, rn.choice(defensores)
+        else:
+            return (None, None)
+
+    def atacar(self):
+        """
+        Realiza un ataque entre dos países elegidos con el método
+        'elegir_combatientes()'.
+        """
+        atacante, defensor = self.elegir_combatientes()
+        if atacante != None:
+            atacante.atacar(defensor)
+
+    def reagrupar(self):
+        """
+        Mueve ejércitos entre los países propios, siguendo las reglas
+        de movimiento establecidas por el juego.
+        """
+        # Elige los países que pueden moverse
+        paises_movimiento = [i for i in self.mis_paises() if i.ejercitos > 1]
+        rn.shuffle(paises_movimiento)
+
+        for pais_origen in paises_movimiento:
+            # Países limítrofes que pertenecen al jugador
+            paises_destino = [i for i in pais_origen.limitrofes if i.jugador == self]
+
+            # Realiza movimiento si hay países destino disponibles
+            if paises_destino:
+                pais_origen.mover(
+                    rn.randint(0, pais_origen.ejercitos - 1),
+                    rn.choice(paises_destino),
+                )
 
     def mis_paises(self):
         """
         Entrega una copia de la lista de países conquistados por el
         jugador.
         """
-
         return self.territorios.copy()
 
     def __repr__(self):
@@ -263,16 +317,19 @@ class Jugador:
             # cuentan cuántos ganaron en orden descendente
             for numero in resultados:
                 if dados.count(numero) == numero_ganadores - len(ganadores):
+
                     # Se obtuvo el número justo de ganadores. Se termina
                     # la función
                     ganadores.extend(jugadores[: dados.count(numero)])
                     return ganadores
                 elif dados.count(numero) > numero_ganadores - len(ganadores):
+
                     # Hay muchos ganadores. Estos vuelven a hacer los
                     # tiros
                     jugadores = jugadores[: dados.count(numero)].copy()
                     break
                 else:
+
                     # Ganan algunos. Los demás vuelven a tirar
                     ganadores.extend(jugadores[: dados.count(numero)])
                     jugadores = jugadores[dados.count(numero) :]

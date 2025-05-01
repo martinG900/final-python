@@ -2,59 +2,74 @@ from random import shuffle
 
 
 class Mazo:
-    """Clase que representa el mazo de cartas del juego. Tiene asociada cada
-    carta del mazo y es capaz de mezclarlas y cortarlas en mazos más pequeños.
-    Se inicializa entregándole una lista o diccionario"""
+    """
+    Clase que representa una mazo de cartas y al cual puede tratarse
+    parcialmente como una lista donde cada elemento es una carta. Es
+    capaz de mezclar las cartas, repartirlas a otros mazos, incorporar
+    más cartas a sí mismo o quitarlas.
+    """
 
     def __init__(self, cartas: list):
-
         self.mazo = cartas.copy()
-        self.original = self.mazo.copy()
 
     def mezclar(self):
-        """Función que mezcla el mazo de cartas"""
-
+        """
+        Mezcla las cartas del mazo.
+        """
         shuffle(self.mazo)
 
     def introducir(self, cartas: list):
-        """Función a la que se le entrega una lista de nombres de cartas
-        y los introduce al mazo"""
-
+        """
+        Integra más cartas, elementos de una lista 'cartas', al mazo.
+        cartas: list
+            Lista con las cartas a incorporar.
+        """
         self.mazo.extend(cartas)
 
     def repartir(self, **kwargs):
-        """Función que puede tomar un número de cartas del tope de este
-        mazo entregándole el número n de cartas a tomar o puede tomar
-        cartas espefícicas del mazo entregándole una lista con los
-        nombres de las cartas. Además, se le entrega un objeto Mazo
-        para añadir las cartas tomadas de este mazo al otro"""
-
-        # Usar kwargs como {'n':int,'nombres'=objeto Mazo,
-        # 'mazo'=objeto Mazo}
-
+        """
+        Reparte 'n' cartas del tope del mazo a otro objeto Mazo
+        'recipiente' o reparte cartas específicas 'cartas' de este
+        mazo al otro.
+        n: int
+            Número de cartas a sacar del tope de este mazo para
+            repartirlas. El tope del mazo se considera el inicio de su
+            lista de cartas.
+        cartas: Mazo
+            Cartas a ser repartidas al mazo recipiente.
+        recipiente: Mazo
+            Mazo que recibe las cartas repartidas por este mazo.
+        """
         repartidas = []
 
+        # Se roban n cartas del tope del mazo
         if "n" in kwargs:
             [repartidas.append(self.mazo.pop(0)) for a in range(kwargs["n"])]
+
+        # Se roban cartas específicas
         else:
-            cartas = kwargs["nombres"].copiar()
+            cartas = kwargs["cartas"].copiar()
             repartidas.extend(cartas)
             self.quitar(cartas)
 
-        kwargs["mazo"].introducir(repartidas)
+        # Se añaden las cartas robadas al mazo recipiente
+        kwargs["recipiente"].introducir(repartidas)
 
     def copiar(self):
-        """Función que devuelve una copia de la lista de cartas del mazo.
-        Sirve para evitar problemas al modificar listas"""
-
+        """
+        Devuelve una copia de la lista de cartas del mazo.
+        """
         return self.mazo.copy()
 
-    def quitar(self, nombres):
-        """Función que quita cartas del mazo entregando una lista con los nombres de las cartas"""
-
-        [self.mazo.remove(i) for i in nombres]
-
-        self.original = self.mazo.copy()
+    def quitar(self, cartas: list):
+        """
+        Remueve ciertas cartas, elementos de la lista 'cartas', del
+        mazo.
+        cartas: list
+            Lista cuyos elementos coinciden con los elementos de la
+            lista de cartas del mazo.
+        """
+        [self.mazo.remove(i) for i in cartas]
 
     def __repr__(self):
         return str(self.mazo)
@@ -68,8 +83,6 @@ class Mazo:
     def __iter__(self):
         for a in self.mazo:
             yield a
-
-    # Implemento getitem para poder llamar elementos del Mazo
 
     def __getitem__(self, n: int):
         return self.mazo[n]
