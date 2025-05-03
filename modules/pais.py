@@ -86,15 +86,6 @@ class Pais:
         self.retirar(n)
         pais_objetivo.reforzar(n)
 
-    def en_limite(self, pais):
-        """
-        Revisa si un 'pais' es limítrofe a este y devuelve un valor
-        Booleano.
-        pais: Pais
-            País que puede o no ser limítrofe.
-        """
-        return pais in self.limitrofes
-
     def atacar(self, defensor):
         """
         Ataca al país 'defensor'.
