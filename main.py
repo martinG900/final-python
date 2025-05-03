@@ -57,17 +57,19 @@ else:
     # Sobran dos cartas y jugadores compiten por estas
     [i.robar(1, mazo) for i in Jugador.tiros(2, jugadores)]
 
-# Jugadores adquieren países y coloocan un ejército en cada uno
-[i.desplegar(1, i.cartas) for i in jugadores]
+for i in jugadores:
 
-# Jugadores devuelven sus cartas al mazo
-[i.devolver(i.cartas, mazo) for i in jugadores]
+    # Jugadores adquieren países y colocan un ejército en cada uno
+    i.desplegar(1, i.cartas)
 
-mazo.mezclar()
+    # Jugadores devuelven sus cartas al mazo
+    i.devolver(i.cartas, mazo)
 
-# Jugadores despliegan ejércitos en sus países
-[i.despliegues(5, [j for j in i.territorios]) for i in jugadores]
-[i.despliegues(3, [j for j in i.territorios]) for i in jugadores]
+    mazo.mezclar()
+
+    # Jugadores despliegan ejércitos en sus países
+    i.despliegues(5, [j for j in i.territorios])
+    i.despliegues(3, [j for j in i.territorios])
 
 # Orden en el que juegan jugadores
 rn.shuffle(jugadores)
